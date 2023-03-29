@@ -5,8 +5,9 @@ Améliorations: Sortir les paramètres de configuration de la carte.
 */
 
 import { Component, AfterViewInit, OnInit } from '@angular/core';
-import { CommunesService } from '../communes.service';
+import { HttpClientCommunes } from './services/http-client-communes.service';
 import * as L from 'leaflet';
+import { CommuneData } from './services/commune-data.service';
 
 @Component({
   selector: 'app-map',
@@ -33,32 +34,21 @@ export class MapComponent implements AfterViewInit, OnInit {
     tiles.addTo(this.map)
   }
   /**
-   * La carte dépend directement du service Commune service 
-   * @param CommunesService 
+   * 
+   * @param http 
+   * @param communesData 
    */
-  constructor(private CommunesService: CommunesService) {
-    // La fonction `subscribe()` prend en paramètre un observer ou une fonction, qui sera appelé chaque fois qu'un nouvel élément sera émis par l'observable.
-    // L'observable est l'objet auquel la fonction `subscribe()` est attachée.
-    // this.CommunesService.getCommunes();
+  constructor(private http: HttpClientCommunes, private communesData:CommuneData) {
+    console.log(this.communesData.getData());
+    
   }
   ngOnInit(): void {
-    /**
-     * Récupération de l'ensemble des formes géométriques
-     * Quel enfer
-     */
-    this.CommunesService.getCommunes().subscribe(response => {
-      console.log(response.length);
-      response.forEach((value, index) => {          
-        console.log(value["geo_point_2d"])
-        // console.log(value["geo_shape"])
-        console.log(value["com_name_upper"])
-      })
-    })
+  
   }
   ngAfterViewInit(): void {
-    /*
-    AfterViewInit permet de spécifier un traitement après l'initialisation de la vue
-    */
+    /**
+     * AfterViewInit permet de spécifier un traitement après l'initialisation de la vue 
+     **/
     this.initMap();
   }
 }

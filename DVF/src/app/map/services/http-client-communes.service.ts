@@ -7,7 +7,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 /**
  * Ce service permet de récupérer l'ensemble des communes de la Réunion
  */
-export class CommunesService {
+export class HttpClientCommunes {
   configUrl = "asserts/config.json";
   private openDataSoftUrl = 'https://data.regionreunion.com/api/v2/catalog/datasets/';
   private datasetId = "communes-millesime-france/";
@@ -18,6 +18,9 @@ export class CommunesService {
   constructor(private http: HttpClient) { }
 
   createUrl(): string {
+    /**
+     * 
+     */
     let urlCreated = this.openDataSoftUrl + this.datasetId + this.type + this.exportFormat;
     return urlCreated;
   }
