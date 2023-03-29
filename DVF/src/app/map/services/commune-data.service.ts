@@ -19,10 +19,12 @@ export class CommuneData {
             response.forEach((value, index) => {
                 let nom = value["com_name_upper"];
                 let localisation = <{ "lat": number, "long": number }> value["geo_point_2d"];
-                let geometrie = 1;
+                let geometrie = value["geo_shape"];
                 let codepostal = 1; 
                 let commune = new Commune(nom,codepostal,localisation,geometrie);
                 this.communes.push(commune);
+                // console.log(geometrie);
+                
 
             })
         })
