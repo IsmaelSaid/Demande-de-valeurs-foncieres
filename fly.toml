@@ -1,0 +1,7 @@
+# fly.toml file generated for dvfapp on 2023-03-27T23:20:55+04:00
+
+app = "dvfapp"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "DVF/Dockerfile"
