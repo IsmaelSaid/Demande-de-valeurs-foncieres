@@ -1,0 +1,4 @@
+# TODO : Remplacez les fichiers sql par l'archive orgiginal
+*.sql
+.vscode/
+*.bash
