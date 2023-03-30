@@ -44,14 +44,9 @@ export class MapComponent implements AfterViewInit, OnInit {
           let geometrie = value["geo_shape"];
           let codepostal = 1; 
           let commune = new Commune(nom,codepostal,localisation,geometrie);
-          L.geoJSON(JSON.parse(JSON.stringify(geometrie))).addTo(this.map);
-
+          L.geoJSON(JSON.parse(JSON.stringify(geometrie))).addTo(this.map);          
       })
-  });
-  console.log(this.data.length);
-  
-    
-
+  }); 
   }
   ngOnInit(): void {
 
@@ -62,10 +57,5 @@ export class MapComponent implements AfterViewInit, OnInit {
      * AfterViewInit permet de spécifier un traitement après l'initialisation de la vue 
      **/
     this.initMap();
-  }
-
-  private addGeoJson(data : CommuneData): void {
-    console.log(data.getData().length);
-    console.log("trigger");
   }
 }
