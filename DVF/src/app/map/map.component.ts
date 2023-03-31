@@ -2,6 +2,7 @@ import * as L from 'leaflet';
 import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { HttpClientCommunes } from './services/http-client-communes.service';
 import { HttpClientEpci } from './services/http-client-epci.service';
+import { HttpClientIris } from './services/http-client-iris.service';
 
 @Component({
   selector: 'app-map',
@@ -13,12 +14,15 @@ export class MapComponent implements AfterViewInit, OnInit {
   private communesOverlay!: L.Layer;
   private layerControl = L.control.layers();
 
-  constructor(private httpClientCommunes: HttpClientCommunes, private httpClientEpci: HttpClientEpci) { }
+  constructor(private httpClientCommunes: HttpClientCommunes,
+    private httpClientEpci: HttpClientEpci,
+    private httpClientIris: HttpClientIris) { }
   ngOnInit(): void { }
   ngAfterViewInit(): void {
     this.initMap();
     this.initCommunesTiles(this.httpClientCommunes);
-    this.initEpciTiles(this.httpClientEpci)
+    this.initEpciTiles(this.httpClientEpci);
+    this.initIrisTiles(this.httpClientIris);
   }
   private initMap(): void {
     this.map = L.map('map', {
@@ -40,7 +44,6 @@ export class MapComponent implements AfterViewInit, OnInit {
 
       // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
       let layerGroupGeometrieCommunes = L.layerGroup();
-
       // Création d'un groupe de layer qui va contenir un point de localisation pour les villes
       let layerGroupLocalisationCommunes = L.layerGroup();
       response.forEach((value, index) => {
@@ -49,8 +52,8 @@ export class MapComponent implements AfterViewInit, OnInit {
         layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
         layerGroupLocalisationCommunes.addLayer(L.marker(localisation))
       })
-      this.layerControl.addOverlay(layerGroupGeometrieCommunes, "Géométrie communes base");
-      this.layerControl.addOverlay(layerGroupLocalisationCommunes, "Localisation communes");
+      this.layerControl.addOverlay(layerGroupGeometrieCommunes, "Géométrie-communes");
+      this.layerControl.addOverlay(layerGroupLocalisationCommunes, "Localisation-communes");
     });
   }
   private initEpciTiles(httpClientEpci: HttpClientEpci) {
@@ -58,12 +61,22 @@ export class MapComponent implements AfterViewInit, OnInit {
       // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
       let layerGroupGeometrieEpci = L.layerGroup();
       response.forEach((value, index) => {
-        console.log(value);
-        
         let geometrie = value["geo_shape"];
         layerGroupGeometrieEpci.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
       })
-      this.layerControl.addOverlay(layerGroupGeometrieEpci, "Géométrie EPCI base");
+      this.layerControl.addOverlay(layerGroupGeometrieEpci, "Géométrie-EPCI");
+    });
+  }
+  private initIrisTiles(httpClientIris: HttpClientIris) {
+    httpClientIris.getIris().subscribe(response => {
+      // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
+      let layerGroupGeometrieEpci = L.layerGroup();
+      response.forEach((value, index) => {
+        console.log(value);
+        let geometrie = value["geo_shape"];
+        layerGroupGeometrieEpci.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
+      })
+      this.layerControl.addOverlay(layerGroupGeometrieEpci, "Géométrie-IRIS");
     });
   }
 }
