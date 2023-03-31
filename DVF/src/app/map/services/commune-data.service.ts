@@ -8,7 +8,7 @@ import { HttpClientCommunes } from "./http-client-communes.service";
 export class CommuneData {
     private communes:Commune[] = [];
 
-    public constructor(private http: HttpClientCommunes) {
+    constructor(private http: HttpClientCommunes) {
         /**
          * 1) Récuperer les données de open data soft à partir de 
          * HttpClientCommunes
@@ -24,8 +24,6 @@ export class CommuneData {
                 let commune = new Commune(nom,codepostal,localisation,geometrie);
                 this.communes.push(commune);
                 // console.log(geometrie);
-                
-
             })
         })
     }
