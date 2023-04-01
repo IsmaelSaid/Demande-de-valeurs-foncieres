@@ -14,7 +14,6 @@ export class CommuneData {
          * HttpClientCommunes
          * 2) Instancier le tableau des communes
          */
-
         this.http.getCommunes().subscribe(response => {
             response.forEach((value, index) => {
                 let nom = value["com_name_upper"];
@@ -23,7 +22,6 @@ export class CommuneData {
                 let codepostal = 1; 
                 let commune = new Commune(nom,codepostal,localisation,geometrie);
                 this.communes.push(commune);
-                // console.log(geometrie);
             })
         })
     }
