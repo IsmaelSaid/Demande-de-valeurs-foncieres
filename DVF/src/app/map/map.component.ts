@@ -41,26 +41,24 @@ export class MapComponent implements AfterViewInit, OnInit {
   }
   private initCommunesTiles(httpClientCommunes: HttpClientCommunes) {
     httpClientCommunes.getCommunes().subscribe(response => {
-
       // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
       let layerGroupGeometrieCommunes = L.layerGroup();
-      // Création d'un groupe de layer qui va contenir un point de localisation pour les villes
-      let layerGroupLocalisationCommunes = L.layerGroup();
-      response.forEach((value, index) => {
-        let localisation = <{ "lat": number, "lng": number }>value["geo_point_2d"];
+      response.forEach((value) => {
         let geometrie = value["geo_shape"];
-        layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
-        layerGroupLocalisationCommunes.addLayer(L.marker(localisation))
+        layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))).on("click",(e : L.LeafletMouseEvent)=>{
+          console.log(e.latlng);
+          console.log(e.sourceTarget);
+          console.log(e.target);
+          
+        }));
       })
       this.layerControl.addOverlay(layerGroupGeometrieCommunes, "Géométrie-communes");
-      this.layerControl.addOverlay(layerGroupLocalisationCommunes, "Localisation-communes");
     });
   }
   private initEpciTiles(httpClientEpci: HttpClientEpci) {
     httpClientEpci.getEpci().subscribe(response => {
-      // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
       let layerGroupGeometrieEpci = L.layerGroup();
-      response.forEach((value, index) => {
+      response.forEach((value) => {
         let geometrie = value["geo_shape"];
         layerGroupGeometrieEpci.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
       })
@@ -69,10 +67,8 @@ export class MapComponent implements AfterViewInit, OnInit {
   }
   private initIrisTiles(httpClientIris: HttpClientIris) {
     httpClientIris.getIris().subscribe(response => {
-      // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
       let layerGroupGeometrieEpci = L.layerGroup();
-      response.forEach((value, index) => {
-        console.log(value);
+      response.forEach((value) => {
         let geometrie = value["geo_shape"];
         layerGroupGeometrieEpci.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
       })
