@@ -1,12 +1,8 @@
-/*
-https://leafletjs.com/
-Ce component permet d'instancier une carte leaflet
-Améliorations: Sortir les paramètres de configuration de la carte.
-*/
-
-import { Component, AfterViewInit, OnInit } from '@angular/core';
-import { CommunesService } from '../communes.service';
 import * as L from 'leaflet';
+import { Component, AfterViewInit, OnInit } from '@angular/core';
+import { HttpClientCommunes } from './services/http-client-communes.service';
+import { HttpClientEpci } from './services/http-client-epci.service';
+import { HttpClientIris } from './services/http-client-iris.service';
 
 @Component({
   selector: 'app-map',
@@ -15,50 +11,68 @@ import * as L from 'leaflet';
 })
 export class MapComponent implements AfterViewInit, OnInit {
   private map!: L.Map;
+  private communesOverlay!: L.Layer;
+  private layerControl = L.control.layers();
+
+  constructor(private httpClientCommunes: HttpClientCommunes,
+    private httpClientEpci: HttpClientEpci,
+    private httpClientIris: HttpClientIris) { }
+  ngOnInit(): void { }
+  ngAfterViewInit(): void {
+    this.initMap();
+    this.initCommunesTiles(this.httpClientCommunes);
+    this.initEpciTiles(this.httpClientEpci);
+    this.initIrisTiles(this.httpClientIris);
+  }
   private initMap(): void {
-    /*
-    initMap permet de configurer une carte.
-    */
     this.map = L.map('map', {
       center: [-21.12793576632045, 55.53617714019368],
-      zoom: 10
+      zoom: 11
     });
 
-    const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
+    const tiles = L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png", {
+      maxZoom: 15,
       minZoom: 3,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     });
+    tiles.addTo(this.map);
+    this.layerControl.addTo(this.map);
 
-    tiles.addTo(this.map)
   }
-  /**
-   * La carte dépend directement du service Commune service 
-   * @param CommunesService 
-   */
-  constructor(private CommunesService: CommunesService) {
-    // La fonction `subscribe()` prend en paramètre un observer ou une fonction, qui sera appelé chaque fois qu'un nouvel élément sera émis par l'observable.
-    // L'observable est l'objet auquel la fonction `subscribe()` est attachée.
-    // this.CommunesService.getCommunes();
-  }
-  ngOnInit(): void {
-    /**
-     * Récupération de l'ensemble des formes géométriques
-     * Quel enfer
-     */
-    this.CommunesService.getCommunes().subscribe(response => {
-      console.log(response.length);
-      response.forEach((value, index) => {          
-        console.log(value["geo_point_2d"])
-        // console.log(value["geo_shape"])
-        console.log(value["com_name_upper"])
+  private initCommunesTiles(httpClientCommunes: HttpClientCommunes) {
+    httpClientCommunes.getCommunes().subscribe(response => {
+      // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
+      let layerGroupGeometrieCommunes = L.layerGroup();
+      response.forEach((value) => {
+        let geometrie = value["geo_shape"];
+        layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))).on("click",(e : L.LeafletMouseEvent)=>{
+          console.log(e.latlng);
+          console.log(e.sourceTarget);
+          console.log(e.target);
+          
+        }));
       })
-    })
+      this.layerControl.addOverlay(layerGroupGeometrieCommunes, "Géométrie-communes");
+    });
   }
-  ngAfterViewInit(): void {
-    /*
-    AfterViewInit permet de spécifier un traitement après l'initialisation de la vue
-    */
-    this.initMap();
+  private initEpciTiles(httpClientEpci: HttpClientEpci) {
+    httpClientEpci.getEpci().subscribe(response => {
+      let layerGroupGeometrieEpci = L.layerGroup();
+      response.forEach((value) => {
+        let geometrie = value["geo_shape"];
+        layerGroupGeometrieEpci.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
+      })
+      this.layerControl.addOverlay(layerGroupGeometrieEpci, "Géométrie-EPCI");
+    });
+  }
+  private initIrisTiles(httpClientIris: HttpClientIris) {
+    httpClientIris.getIris().subscribe(response => {
+      let layerGroupGeometrieEpci = L.layerGroup();
+      response.forEach((value) => {
+        let geometrie = value["geo_shape"];
+        layerGroupGeometrieEpci.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))));
+      })
+      this.layerControl.addOverlay(layerGroupGeometrieEpci, "Géométrie-IRIS");
+    });
   }
 }

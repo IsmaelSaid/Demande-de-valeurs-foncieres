@@ -4,10 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
-/**
- * Ce service permet de récupérer l'ensemble des communes de la Réunion
- */
-export class CommunesService {
+export class HttpClientCommunes {
   configUrl = "asserts/config.json";
   private openDataSoftUrl = 'https://data.regionreunion.com/api/v2/catalog/datasets/';
   private datasetId = "communes-millesime-france/";
@@ -23,12 +20,6 @@ export class CommunesService {
   }
   
   getCommunes(){
-    /**
-     * Retourne un observable
-     * Si l'on souhaite spécifier plusieurs arguments au moment de la requête, 
-     * Utilisez plutot HttpParams().appendAll() cf doc.
-     */
-
     let params: HttpParams;
     params = new HttpParams().append("where", this.whereString);
     return this.http.get<[]>(this.createUrl(), {params: params});
