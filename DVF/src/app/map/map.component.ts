@@ -3,8 +3,8 @@ import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { HttpClientCommunes } from './services/http-client-communes.service';
 import { HttpClientEpci } from './services/http-client-epci.service';
 import { HttpClientIris } from './services/http-client-iris.service';
+import { HttpDVF } from './services/http-client-dvf.service';
 import { Analyse } from './models/analyse.model';
-
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -13,11 +13,13 @@ import { Analyse } from './models/analyse.model';
 export class MapComponent implements AfterViewInit, OnInit {
   private map!: L.Map;
   private layerControl = L.control.layers();
-  analyse:Analyse | undefined;
+  analyse: Analyse | undefined;
 
-  constructor(private httpClientCommunes: HttpClientCommunes,
+  constructor(
+    private httpClientCommunes: HttpClientCommunes,
     private httpClientEpci: HttpClientEpci,
-    private httpClientIris: HttpClientIris) {}
+    private httpClientIris: HttpClientIris,
+    private httpDVF:HttpDVF) { }
   ngOnInit(): void { }
   ngAfterViewInit(): void {
     this.initMap();
@@ -46,8 +48,10 @@ export class MapComponent implements AfterViewInit, OnInit {
       response.forEach((value) => {
         let geometrie = value["geo_shape"];
         let nom = value["com_name_upper"];
-        layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))).on("click",(e : L.LeafletMouseEvent)=>{
-          this.analyse = new Analyse("Test de l'analyse","commune",nom);
+        layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))).on("click", (e: L.LeafletMouseEvent) => {
+          this.analyse = new Analyse("Test de l'analyse", "commune", nom);
+          this.analyse.getVegaView().initialize('#chart').run();
+
         }));
       })
       this.layerControl.addOverlay(layerGroupGeometrieCommunes, "Géométrie-communes");
