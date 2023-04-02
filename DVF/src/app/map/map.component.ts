@@ -3,6 +3,7 @@ import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { HttpClientCommunes } from './services/http-client-communes.service';
 import { HttpClientEpci } from './services/http-client-epci.service';
 import { HttpClientIris } from './services/http-client-iris.service';
+import { Analyse } from './models/analyse.model';
 
 @Component({
   selector: 'app-map',
@@ -11,12 +12,12 @@ import { HttpClientIris } from './services/http-client-iris.service';
 })
 export class MapComponent implements AfterViewInit, OnInit {
   private map!: L.Map;
-  private communesOverlay!: L.Layer;
   private layerControl = L.control.layers();
+  analyse:Analyse | undefined;
 
   constructor(private httpClientCommunes: HttpClientCommunes,
     private httpClientEpci: HttpClientEpci,
-    private httpClientIris: HttpClientIris) { }
+    private httpClientIris: HttpClientIris) {}
   ngOnInit(): void { }
   ngAfterViewInit(): void {
     this.initMap();
@@ -41,15 +42,12 @@ export class MapComponent implements AfterViewInit, OnInit {
   }
   private initCommunesTiles(httpClientCommunes: HttpClientCommunes) {
     httpClientCommunes.getCommunes().subscribe(response => {
-      // Création d'un groupe de layer qui va contenir l'ensemble des formes géométrique
       let layerGroupGeometrieCommunes = L.layerGroup();
       response.forEach((value) => {
         let geometrie = value["geo_shape"];
+        let nom = value["com_name_upper"];
         layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))).on("click",(e : L.LeafletMouseEvent)=>{
-          console.log(e.latlng);
-          console.log(e.sourceTarget);
-          console.log(e.target);
-          
+          this.analyse = new Analyse("Test de l'analyse","commune",nom);
         }));
       })
       this.layerControl.addOverlay(layerGroupGeometrieCommunes, "Géométrie-communes");

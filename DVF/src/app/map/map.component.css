@@ -1,16 +1,10 @@
-.map-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: 0px;
-  }
-  
-  .map-frame {
-    height: 100%;
-  }
-  
-  #map {
-    height: 100%;
-  }
+#map{
+  height: 100%;
+}
+
+#analyse{
+
+  border: 1px solid black;
+  height: 100vh;
+  background-color: rgb(255, 255, 255);
+}
