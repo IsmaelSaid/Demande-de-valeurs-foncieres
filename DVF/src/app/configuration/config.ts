@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config();
+
 export const CONFIG = {
     localisationReunion : [-21.12793576632045, 55.53617714019368],
     tiles : "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png",
@@ -8,5 +11,5 @@ export const CONFIG = {
     urlOpenDataSoft: "https://data.regionreunion.com/api/v2/catalog/datasets/",
     communesDatasetID: "communes-millesime-france/",
     epciDatasetID : "intercommunalites-millesime-france/",
-    irisDatasetAssets:"/assets/iris-millesime-la-reunion.json"
+    irisDatasetAssets:"/assets/iris-millesime-la-reunion.json",
  };
