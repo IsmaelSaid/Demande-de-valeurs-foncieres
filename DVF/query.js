@@ -1,17 +1,21 @@
 const Pool = require('pg').Pool
-require('dotenv').config();
+// require('dotenv-safe').config();
 
-let pool = new Pool(); 
-if(process.env.NODE_ENV == 'development'){
-  pool = new Pool({
-    "connectionString":process.env.DATABASE_LOCAL_URL
-  })
-}else{
-  pool = new Pool({
-    "connectionString":process.env.DATABASE_URL
-  })
-}
 
+// if(process.env.NODE_ENV == 'development'){
+  //   pool = new Pool({
+    //     "connectionString":process.env.DATABASE_LOCAL_URL
+    //   })
+// }else{
+//   pool = new Pool({
+//     "connectionString":process.env.DATABASE_URL
+//   })
+// }
+
+// Ne fonctionnera pas en local
+let pool = new Pool({
+  "connectionString":process.env.DATABASE_URL
+})
 
 const getCountMutations = (request, response) => {
     pool.query('SELECT COUNT(*) FROM dvf.mutation', (error, results) => {
