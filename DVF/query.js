@@ -1,5 +1,5 @@
-const { config } = require('dotenv')
-const Pool = require('pg').Pool
+import { config } from 'dotenv';
+import { Pool } from 'pg';
 config()
 let pool = new Pool(); 
 if(process.env.NODE_ENV == 'development'){
@@ -21,7 +21,7 @@ const getCountMutations = (request, response) => {
       response.status(200).json(results.rows)
     })
   }
-  module.exports = {
+  export default {
     getCountMutations
   }
 
