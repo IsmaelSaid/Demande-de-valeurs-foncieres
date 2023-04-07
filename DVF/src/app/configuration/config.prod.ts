@@ -1,5 +1,6 @@
 
 export const CONFIG = {
+    titre: "DVF mode production",
     localisationReunion : [-21.12793576632045, 55.53617714019368],
     tiles : "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png",
     attribution : '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
@@ -11,5 +12,5 @@ export const CONFIG = {
     epciDatasetID : "intercommunalites-millesime-france/",
     irisDatasetAssets:"/assets/iris-millesime-la-reunion.json",
     countMutationsEnpoint:"api/count/mutations/",
-    countTypeLocalEndpoint:"api/count/typelocal/",
+    countTypeLocalEndpoint:"api/count/typelocal/"
  };
