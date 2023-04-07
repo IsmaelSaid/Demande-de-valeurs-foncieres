@@ -11,7 +11,7 @@ export class HttpClientODS {
   private exportFormat = "json";
   private openDataSoftUrl = CONFIG.urlOpenDataSoft;
   private communeDatasetID = CONFIG.communesDatasetID;
-  private epciDatasetID = CONFIG.communesDatasetID;
+  private epciDatasetID = CONFIG.epciDatasetID;
   private irisDatasetID = CONFIG.irisDatasetAssets;
 
   constructor(private http: HttpClient) { }

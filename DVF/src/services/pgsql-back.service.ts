@@ -1,14 +1,20 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, isDevMode } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CONFIG } from 'src/app/configuration/config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PgsqlBack {
+  private url = window.location.href
   constructor(private http: HttpClient) { }
 
-  get(){
-    return this.http.get("https://dvfapp.fly.dev/countMutations")
+  getCountMutations(code_insee : string){
+    let url = this.url + CONFIG.countMutationsEnpoint + code_insee;
+    return this.http.get(url);
+  }
+  getCountTypeLocal(code_insee : string){
+    let url = this.url + CONFIG.countTypeLocalEndpoint + code_insee;
+    return this.http.get(url);
   }
 }

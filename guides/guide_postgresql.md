@@ -99,5 +99,65 @@ GROUP BY
     libnatmut
 ORDER BY 
     nombre_de_mutation ASC;
+```
 
+**Comptez le nombre de type de bien**
+
+```
+SELECT COUNT(*) as nombre, libtypbien
+FROM 
+    dvf.mutation
+GROUP BY 
+    libtypbien
+ORDER by 
+    nombre ASC
+
+```
+
+**Comptez le nombre total de locaux ayant mutés**
+
+```
+SELECT sum(nblocmut) as nombre_de_locaux
+FROM dvf.mutation
+
+```
+
+**Dénonbrez le nombre de locaux ayant muté en fonction de la forme physique**
+
+```
+SELECT 
+    sum(nblocmut) as nombre_de_locaux,
+    sum(nblocmai) as nombre_de_maisons,
+    sum(nblocapt) as nombre_d_appartements,
+    sum(nblocmai + nblocapt) as nombre_de_logements,
+    sum(nblocdep) as nombre_de_dependance,
+    sum(nblocact) as nombre_de_locaux_activites
+FROM dvf.mutation
+```
+
+**Dénombrez le nombre d'apprtement de moin de deux pièces**
+
+```
+SELECT sum(nbapt1pp + nbapt2pp) as nombre_appartement_moins_de_3_pieces
+FROM dvf.mutation
+```
+**Selectionnez l'ensemble des mutations concernant Sainte-Marie**
+
+```
+select * from
+DVF.mutation
+where '97418' = any(l_codinsee)
+```
+
+**Retrouvez le système de projection dans lequel les données géométriques sont exprimées**
+```
+SELECT ST_SRID(geomparmut) FROM dvf.mutation LIMIT 1
+```
+
+**Convertissez les géométries des parcelles mutées dans un système de projection pour leaflet**
+```
+SELECT st_asgeojson(st_transform(geomparmut,4326))
+FROM DVF.mutation
+WHERE geomparmut IS NOT NULL
+LIMIT 5;
 ```
