@@ -1,7 +1,8 @@
 //Install express server
 const express = require('express');
 const path = require('path');
-const db = require('./query')
+const db_local = require('./queryCommune')
+const db_global = require('./queryGlobal')
 var bodyParser = require('body-parser')
 
 const app = express();
@@ -16,7 +17,12 @@ app.use(
 app.get('/', function(req,res) {
     res.sendFile(path.join(__dirname+'/dist/dvf/index.html'));
 });
-app.get('/api/count/mutations/:codeinsee',db.getCountMutations)
-app.get('/api/count/typelocal/:codeinsee',db.getCountTypeLocal)
+app.get('/api/commune/nature_mutation/:codeinsee',db_local.natureMutationCommune)
+app.get('/api/commune/vente/:codeinsee',db_local.venteAnneeCommune)
+app.get('/api/commune/type_local/:codeinsee',db_local.typeLocalCommune)
+
+app.get('/api/global/nature_mutation/',db_global.natureMutationGlobal)
+app.get('/api/global/vente/',db_global.venteAnneeGlobal)
+app.get('/api/global/type_local/',db_global.typeLocalGlobal)
 
 app.listen(process.env.PORT || 8080);
