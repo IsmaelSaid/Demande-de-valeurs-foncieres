@@ -67,7 +67,7 @@ const venteAnneeGlobal = (request, response) => {
   pool.query(
     `SELECT COUNT(*) as nombre_ventes, anneemut
     FROM 
-      dvf.dvf.mutation
+      dvf.mutation
     GROUP BY 
       anneemut
     ORDER BY 

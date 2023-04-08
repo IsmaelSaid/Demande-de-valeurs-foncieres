@@ -115,7 +115,7 @@ const venteAnneeCommune = (request, response) => {
   pool.query(
     `SELECT COUNT(*) as nombre_ventes, anneemut
     FROM 
-      dvf.dvf.mutation
+      dvf.mutation
     WHERE 
       $1 = any(l_codinsee)
     GROUP BY 
