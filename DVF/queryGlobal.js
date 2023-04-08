@@ -1,20 +1,34 @@
 const Pool = require("pg").Pool;
-let pool;
 
-if (process.env.DATABASE_URL) {
-  console.info("Utilisation de la base de données attachées \n");
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+const getPool = () => {
+  const connectionString = process.env.DATABASE_URL
+    ? process.env.DATABASE_URL
+    : "postgres://ismael:sagrandmere@localhost:5432/dvf";
+
+  console.info(`Utilisation de la base de données : ${connectionString}\n`);
+  return new Pool({
+    connectionString,
   });
-} else {
-  console.info("--MODE DEV--\nUtilisation de la base de données local \n");
-  pool = new Pool({
-    connectionString: "postgres://ismael:sagrandmere@localhost:5432/dvf",
-  });
-}
+};
+
+const pool = getPool();
+
+
+/**
+ * Récupère les données concernant la nature des mutations dans la table "dvf.mutation" de la base de données PostgreSQL.
+ * Les données sont regroupées par nature de mutation et renvoyées sous forme de tableau JSON contenant les informations suivantes :
+ * - "libnatmut" : nature de la mutation (vente, échange, donation, etc.)
+ * - "nombre_de_mutation" : nombre total de mutations pour cette nature de mutation
+ * - "pourcentage" : pourcentage du nombre de mutations par rapport au nombre total de mutations dans la table "dvf.mutation"
+ *
+ * @param {Object} request - Objet représentant la requête HTTP reçue par le serveur.
+ * @param {Object} response - Objet représentant la réponse HTTP à renvoyer au client.
+ * @returns {void} - Cette fonction ne renvoie rien directement, mais utilise la méthode "response.status().json()" pour renvoyer les données au client.
+ * @throws {Error} - Lance une erreur si la requête SQL échoue.
+ */
 
 const natureMutationGlobal = (request, response) => {
-  console.info("Compte type mutation global");
+  console.info("natureMutationGlobal");
   pool.query(
     `WITH total_mutations AS (SELECT COUNT(*) FROM dvf.mutation)
     SELECT 
@@ -36,12 +50,20 @@ const natureMutationGlobal = (request, response) => {
   );
 };
 
+/**
+ * Récupère les données concernant le nombre de ventes par année dans la table "dvf.dvf.mutation" de la base de données PostgreSQL.
+ * Les données sont regroupées par année de mutation et renvoyées sous forme de tableau JSON contenant les informations suivantes :
+ * - "nombre_ventes" : nombre total de ventes pour l'année concernée
+ * - "anneemut" : année de mutation
+ *
+ * @param {Object} request - Objet représentant la requête HTTP reçue par le serveur.
+ * @param {Object} response - Objet représentant la réponse HTTP à renvoyer au client.
+ * @returns {void} - Cette fonction ne renvoie rien directement, mais utilise la méthode "response.status().json()" pour renvoyer les données au client.
+ * @throws {Error} - Lance une erreur si la requête SQL échoue.
+ */
+
 const venteAnneeGlobal = (request, response) => {
-  /**
-   * Cette fonction permet de récupérer les chiffres associées aux ventes
-   * par année à l'échelle de la Réunion
-   */
-  console.info("Compte type mutation global");
+  console.info("venteAnneeGlobal");
   pool.query(
     `SELECT COUNT(*) as nombre_ventes, anneemut
     FROM 
@@ -59,12 +81,25 @@ const venteAnneeGlobal = (request, response) => {
   );
 };
 
+/**
+ * Récupère les données concernant les types de locaux dans les mutations de la table "dvf.mutation" de la base de données PostgreSQL.
+ * Les données sont regroupées par année de mutation et renvoyées sous forme de tableau JSON contenant les informations suivantes :
+ * - "anneemut" : année de mutation
+ * - "nombre_de_locaux" : nombre total de locaux
+ * - "nombre_de_maisons" : nombre de maisons
+ * - "nombre_d_appartements" : nombre d'appartements
+ * - "nombre_de_logements" : nombre total de logements (maisons + appartements)
+ * - "nombre_de_dependance" : nombre de dépendances
+ * - "nombre_de_locaux_activites" : nombre de locaux d'activités
+ *
+ * @param {Object} request - Objet représentant la requête HTTP reçue par le serveur.
+ * @param {Object} response - Objet représentant la réponse HTTP à renvoyer au client.
+ * @returns {void} - Cette fonction ne renvoie rien directement, mais utilise la méthode "response.status().json()" pour renvoyer les données au client.
+ * @throws {Error} - Lance une erreur si la requête SQL échoue.
+ */
+
 const typeLocalGlobal = (request, response) => {
-  /**
-   * Cette fonction permet de récupérer les types de locaux
-   * con
-   */
-  console.info("Compte type mutation global");
+  console.info("typeLocalGlobal");
   pool.query(
     `SELECT 
       anneemut,
