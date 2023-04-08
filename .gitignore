@@ -3,3 +3,4 @@
 .vscode/
 *.bash
 .env
+*.pyc
