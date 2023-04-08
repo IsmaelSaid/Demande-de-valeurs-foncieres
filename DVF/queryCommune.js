@@ -7,13 +7,13 @@ if(process.env.DATABASE_URL){
     connectionString: process.env.DATABASE_URL
   });
 }else {
-  console.info("Utilisation de la base de données local \n");
+  console.info("--MODE DEV--\nUtilisation de la base de données local \n");
   pool = new Pool({
     connectionString: "postgres://ismael:sagrandmere@localhost:5432/dvf"
   });
 }
 
-const getCountMutations = (request, response) => {
+const natureMutationCommune = (request, response) => {
   const codeinsee = request.params.codeinsee
   console.info("countmutation for : "+codeinsee)
   pool.query(
@@ -41,7 +41,7 @@ const getCountMutations = (request, response) => {
   );
 };
 
-const getCountTypeLocal = (request, response) => {
+const typeLocalCommune = (request, response) => {
   const codeinsee = request.params.codeinsee;
   console.info("counttypelocal for codeinsee : "+codeinsee)
   pool.query(
@@ -70,7 +70,37 @@ const getCountTypeLocal = (request, response) => {
     }
   );
 };
+
+const venteAnneeCommune = (request, response) => {
+  /**
+   * Cette fonction permet de récupérer les chiffres associées aux ventes
+   * par année à l'échelle de la Réunion
+   */
+  const codeinsee = request.params.codeinsee;
+  console.info("counttypelocal for codeinsee : "+codeinsee)
+
+  console.info("Compte type mutation global");
+  pool.query(
+    `SELECT COUNT(*) as nombre_ventes, anneemut
+    FROM 
+      dvf.dvf.mutation
+    WHERE 
+      $1 = any(l_codinsee)
+    GROUP BY 
+      anneemut
+    ORDER BY 
+      anneemut ASC;`,[codeinsee],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
 module.exports = {
-  getCountMutations,
-  getCountTypeLocal
+  natureMutationCommune,
+  typeLocalCommune,
+  venteAnneeCommune
 };
