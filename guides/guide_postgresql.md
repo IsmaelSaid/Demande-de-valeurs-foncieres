@@ -135,11 +135,85 @@ SELECT
 FROM dvf.mutation
 ```
 
-**Dénombrez le nombre d'apprtement de moin de deux pièces**
+**Dénombrez le nombre d'appartement vendus en fonction du nombre de pieces**
+V1
+```
+SELECT 
+    anneemut,
+    sum(nbapt1pp) as apt1piece,
+    sum(nbapt2pp) as apt2piece,
+    sum(nbapt3pp) as apt3piece,
+    sum(nbapt4pp) as apt4piece,
+    sum(nbapt5pp) as apt5pieceplus
+FROM dvf.mutation
+group by anneemut
+ORDER by anneemut ASC
+```
+V2
+```
+SELECT 
+    anneemut,
+    sum(nbapt1pp + nbapt2pp + nbapt3pp ) as app_max_3pp,
+    sum(nbapt4pp + nbapt5pp) as app_min_4pp
+FROM dvf.mutation
+group by anneemut
+ORDER by anneemut ASC
+```
+**Dénombrez le nombre de maison vendu par année en fonction du nombre de piece**
+
+v1
+```
+SELECT 
+    anneemut,
+    sum(nbmai1pp) as nbmai1piece,
+    sum(nbmai2pp) as nbmai2piece,
+    sum(nbmai3pp) as nbmai3piece,
+    sum(nbmai4pp) as nbmai4piece,
+    sum(nbmai5pp) as nbmai5pieceplus
+FROM dvf.mutation
+group by anneemut
+ORDER by anneemut ASC
 
 ```
-SELECT sum(nbapt1pp + nbapt2pp) as nombre_appartement_moins_de_3_pieces
+
+v2
+```
+SELECT 
+    anneemut,
+    sum(nbmai1pp + nbmai2pp + nbmai3pp) as max_3pp,
+    sum(nbmai4pp + nbmai5pp) as min_4pp
 FROM dvf.mutation
+where libnatmut = 'Vente'
+group by anneemut
+ORDER by anneemut ASC
+```
+**Retrouvez le nombre de maison muté sur les communes (Eliminez les mutations concernant à la fois plusieurs communes)**
+
+```
+SELECT 
+    l_codinsee,
+    sum(nblocmai) as nombre_de_maisons
+FROM dvf.mutation
+where libnatmut = 'Vente'
+and nbcomm = 1
+group by l_codinsee
+order by nombre_de_maisons
+```
+
+**Calculez le prix des maisons au m² par année à l'échelle de la Réunion**
+quel enfer
+
+```
+select anneemut, round(AVG(valeurfonc/sbatmai),2) as prix_m2_moyen
+from 
+dvf.mutation
+where libnatmut = 'Vente'
+and
+nblocmai > 0
+and nblocapt = 0
+group by anneemut
+order by anneemut ASC
+limit 100
 ```
 **Selectionnez l'ensemble des mutations concernant Sainte-Marie**
 
