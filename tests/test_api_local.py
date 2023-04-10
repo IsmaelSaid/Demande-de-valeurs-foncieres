@@ -14,6 +14,7 @@ class TestAPI(unittest.TestCase):
         self.vente_annee_global = self.host_local + "api/global/vente/"
         self.type_local_global = self.host_local + "api/global/type_local/"
         self.type_local_vendu_par_commune = self.host_local + "api/global/type_local_vendu_par_commune/"
+        self.evolution_prix_par_type_local = self.host_local + "api/global/evolution_prix_par_type_local/"
 
         self.nature_mutation_commune = self.host_local + "api/commune/nature_mutation/97418"
         self.vente_annee_commune = self.host_local + "api/commune/vente/97418"
@@ -39,6 +40,11 @@ class TestAPI(unittest.TestCase):
         response = requests.get(self.type_local_vendu_par_commune)
         self.assertEqual(response.status_code, 200,
                          "Test de bon fonctionnement /api/global/type_local_vendu_par_commune/")
+    
+    def test_API_evolution_prix_par_type_local(self):
+        response = requests.get(self.evolution_prix_par_type_local)
+        self.assertEqual(response.status_code, 200,
+                         "Test de bon fonctionnement api/global/evolution_prix_par_type_local/")
 
     # Commune
     def test_API_nature_mutation_commune(self):

@@ -25,5 +25,6 @@ app.get('/api/global/nature_mutation/',db_global.natureMutationGlobal)
 app.get('/api/global/vente/',db_global.venteAnneeGlobal)
 app.get('/api/global/type_local/',db_global.typeLocalGlobal)
 app.get('/api/global/type_local_vendu_par_commune/',db_global.typeLocalVenduParCommune)
+app.get('/api/global/evolution_prix_par_type_local/',db_global.evolutionPrixParTypeLocal)
 
 app.listen(process.env.PORT || 8080);

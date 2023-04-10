@@ -90,6 +90,27 @@ export class MapComponent implements AfterViewInit, OnInit {
       }
     ]
   });
+  
+  analyse5 = new Analyse("annal6", {
+    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+    data: { "url": 'http://localhost:8080/api/global/evolution_prix_par_type_local/' },
+    "layer": [
+      {
+        "mark": "line",
+        "encoding": {
+          "x": {
+            "field": "anneemut",
+            "type": "ordinal"
+          },
+          "y": {
+            "field": "prix_m2_median",
+            "type": "quantitative"
+          },
+          "color": { "field": "type", "type": "nominal" }
+        }
+      }
+    ]
+  });
 
   constructor(private http: HttpClientODS, private pgsql: PgsqlBack) {
     this.carte = new Carte(http);

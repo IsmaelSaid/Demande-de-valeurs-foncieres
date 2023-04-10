@@ -160,9 +160,43 @@ group by l_codinsee`,
   );
 };
 
+const evolutionPrixParTypeLocal = (request, response) => {
+  console.info("Evolution prix par type de local");
+  pool.query(
+    `SELECT 
+    anneemut, 
+    CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbatmai) AS NUMERIC(10,2)) as prix_m2_median,
+    concat('','Maison') as Type
+FROM dvf.mutation
+WHERE libnatmut = 'Vente'
+AND nblocmai > 0
+AND nblocapt = 0
+GROUP BY anneemut
+UNION
+SELECT 
+    anneemut, 
+    CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbati) AS NUMERIC(10,2)) as prix_m2_median,
+    concat('','Appartement') as Type
+FROM dvf.mutation
+WHERE libnatmut = 'Vente'
+AND nblocmai = 0
+AND nblocapt > 1
+AND sbatapt > 0
+GROUP BY anneemut
+ORDER BY anneemut ASC`,
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
 module.exports = {
   natureMutationGlobal,
   typeLocalGlobal,
   venteAnneeGlobal,
-  typeLocalVenduParCommune
+  typeLocalVenduParCommune,
+  evolutionPrixParTypeLocal
 };
