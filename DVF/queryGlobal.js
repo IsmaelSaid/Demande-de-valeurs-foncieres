@@ -135,7 +135,7 @@ const typeLocalVenduParCommune = (request, response) => {
   console.info("Type et nombre de local vendu par commune");
   pool.query(
     `SELECT 
-    l_codinsee,
+    l_codinsee::TEXT,
     sum(nblocapt) as nb_vendu,
     concat('','Appartement') as Type
 FROM dvf.mutation
@@ -144,7 +144,7 @@ and nbcomm = 1
 group by l_codinsee
 union
 SELECT 
-    l_codinsee,
+    l_codinsee::TEXT,
     sum(nblocmai) as nb_vendu,
     concat('','Maison') as Type
 FROM dvf.mutation
