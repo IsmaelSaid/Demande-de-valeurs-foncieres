@@ -3,38 +3,28 @@ import { Config, TopLevelSpec, compile } from 'vega-lite';
 import * as vega from 'vega';
 
 export class Analyse {
-    constructor(public nomAnalyse: string, public precision: string, public entite: string) {
+    constructor(public nomAnalyse: string, public vegaLiteSpec:TopLevelSpec) {
     }
-    getVegaView(){
-        const vegaLiteSpec: TopLevelSpec = {
-            $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-            data: {
-                values: [
-                    { a: 'A', b: 28 },
-                    { a: 'B', b: 55 },
-                    { a: 'C', b: 43 },
-                    { a: 'D', b: 91 },
-                    { a: 'E', b: 81 },
-                    { a: 'F', b: 53 },
-                    { a: 'G', b: 19 },
-                    { a: 'H', b: 87 },
-                    { a: 'I', b: 52 }
-                ]
-            },
-            mark: 'bar',
-            encoding: {
-                x: { field: 'a', type: 'nominal', axis: { labelAngle: 0 } },
-                y: { field: 'b', type: 'quantitative' }
-            }
-        };
+    public renderView(){
 
         const config: Config = {
             bar: {
                 color: 'firebrick'
             }
         };
+        // Création d'un spec vega
+        const vegaSpec = compile(this.vegaLiteSpec, { config }).spec;
 
-        const vegaSpec = compile(vegaLiteSpec, { config }).spec;
-        return new vega.View(vega.parse(vegaSpec)).renderer('canvas');
+        // Création d'un élement du dom pour acceuillir le graphique
+        const app = document.getElementById("analyse");
+        const div = document.createElement("div");
+        // Ajout d'un id à l'élement du dom
+        div.id = this.nomAnalyse
+
+        // Ajout de l'élement dans le dom
+        app?.append(div)
+
+        // Création d'un graphique
+        new vega.View(vega.parse(vegaSpec)).renderer('canvas').initialize('#'+this.nomAnalyse).run();
     }
 }
