@@ -180,7 +180,7 @@ SELECT
 FROM dvf.mutation
 WHERE libnatmut = 'Vente'
 AND nblocmai = 0
-AND nblocapt > 1
+AND nblocapt > 0
 AND sbatapt > 0
 GROUP BY anneemut
 ORDER BY anneemut ASC`,
