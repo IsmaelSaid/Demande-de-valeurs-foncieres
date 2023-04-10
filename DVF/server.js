@@ -24,5 +24,6 @@ app.get('/api/commune/type_local/:codeinsee',db_local.typeLocalCommune)
 app.get('/api/global/nature_mutation/',db_global.natureMutationGlobal)
 app.get('/api/global/vente/',db_global.venteAnneeGlobal)
 app.get('/api/global/type_local/',db_global.typeLocalGlobal)
+app.get('/api/global/type_local_vendu_par_commune/',db_global.typeLocalVenduParCommune)
 
 app.listen(process.env.PORT || 8080);

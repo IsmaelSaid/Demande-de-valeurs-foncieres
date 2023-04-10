@@ -235,3 +235,37 @@ FROM DVF.mutation
 WHERE geomparmut IS NOT NULL
 LIMIT 5;
 ```
+
+**Pieplot vega**
+select 
+    anneemut,
+    sum(nblocapt) as nombre,
+    concat('','Appartement') as type
+from dvf.mutation
+group by anneemut
+UNION
+select 
+    anneemut,
+    sum(nblocmai) as nombre,
+    concat('','Maison') as Type
+from dvf.mutation
+group by anneemut
+ORDER by anneemut ASC
+**vega stacked**
+SELECT 
+    l_codinsee,
+    sum(nblocapt) as nb_vendu,
+    concat('','Appartement') as Type
+FROM dvf.mutation
+where libnatmut = 'Vente'
+and nbcomm = 1
+group by l_codinsee
+union
+SELECT 
+    l_codinsee,
+    sum(nblocmai) as nb_vendu,
+    concat('','Maison') as Type
+FROM dvf.mutation
+where libnatmut = 'Vente'
+and nbcomm = 1
+group by l_codinsee

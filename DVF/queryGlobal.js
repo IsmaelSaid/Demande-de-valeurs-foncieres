@@ -13,7 +13,6 @@ const getPool = () => {
 
 const pool = getPool();
 
-
 /**
  * Récupère les données concernant la nature des mutations dans la table "dvf.mutation" de la base de données PostgreSQL.
  * Les données sont regroupées par nature de mutation et renvoyées sous forme de tableau JSON contenant les informations suivantes :
@@ -65,13 +64,20 @@ const natureMutationGlobal = (request, response) => {
 const venteAnneeGlobal = (request, response) => {
   console.info("venteAnneeGlobal");
   pool.query(
-    `SELECT COUNT(*) as nombre_ventes, anneemut
-    FROM 
-      dvf.mutation
-    GROUP BY 
-      anneemut
-    ORDER BY 
-      anneemut ASC;`,
+    `select 
+    anneemut,
+    sum(nblocapt) as nombre,
+    concat('','Appartement') as type
+from dvf.mutation
+group by anneemut
+UNION
+select 
+    anneemut,
+    sum(nblocmai) as nombre,
+    concat('','Maison') as Type
+from dvf.mutation
+group by anneemut
+ORDER by anneemut ASC`,
     (error, results) => {
       if (error) {
         throw error;
@@ -124,8 +130,39 @@ const typeLocalGlobal = (request, response) => {
   );
 };
 
+
+const typeLocalVenduParCommune = (request, response) => {
+  console.info("Type et nombre de local vendu par commune");
+  pool.query(
+    `SELECT 
+    l_codinsee,
+    sum(nblocapt) as nb_vendu,
+    concat('','Appartement') as Type
+FROM dvf.mutation
+where libnatmut = 'Vente'
+and nbcomm = 1
+group by l_codinsee
+union
+SELECT 
+    l_codinsee,
+    sum(nblocmai) as nb_vendu,
+    concat('','Maison') as Type
+FROM dvf.mutation
+where libnatmut = 'Vente'
+and nbcomm = 1
+group by l_codinsee`,
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
 module.exports = {
   natureMutationGlobal,
   typeLocalGlobal,
-  venteAnneeGlobal
+  venteAnneeGlobal,
+  typeLocalVenduParCommune
 };

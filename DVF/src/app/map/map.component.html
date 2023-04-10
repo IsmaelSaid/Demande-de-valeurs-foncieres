@@ -1,6 +1,5 @@
 <div id="map"></div>
-<!-- <div id="analyse" *ngIf="analyse">
-  <p>Précision: {{analyse.precision}}</p>
-  <p>Entité: {{analyse.entite}}</p>
-</div> -->
-<div id="chart"></div>
+<app-analyse [analyse]="analyse"></app-analyse>
+<app-analyse [analyse]="analyse2"></app-analyse>
+<app-analyse [analyse]="analyse3"></app-analyse>
+<div id="analyse"></div>
