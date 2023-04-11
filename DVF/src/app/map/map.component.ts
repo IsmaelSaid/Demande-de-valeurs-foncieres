@@ -17,7 +17,7 @@ export class MapComponent implements AfterViewInit, OnInit {
     data: { "url": 'http://localhost:8080/api/global/vente/' },
     "layer": [
       {
-        "mark": "line",
+        "mark": {"type":"line",point:true},
         "encoding": {
           "x": {
             "field": "anneemut",
@@ -63,7 +63,7 @@ export class MapComponent implements AfterViewInit, OnInit {
   analyse3 = new Analyse("annal3", {
     $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
     data: { "url": 'http://localhost:8080/api/global/vente/' },
-    "mark": "arc",
+    "mark": {"type": "arc", "tooltip": true},
     "encoding": {
       "theta": { "aggregate": "mean", "field": "nombre" },
       "color": { "field": "type", "type": "nominal" }
@@ -96,7 +96,7 @@ export class MapComponent implements AfterViewInit, OnInit {
     data: { "url": 'http://localhost:8080/api/global/evolution_prix_par_type_local/' },
     "layer": [
       {
-        "mark": "line",
+        "mark": {"type":"line",point:true},
         "encoding": {
           "x": {
             "field": "anneemut",
