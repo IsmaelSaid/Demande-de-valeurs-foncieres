@@ -34,4 +34,17 @@ export class HttpClientODS {
     return this.http.get<[]>(this.irisDatasetID);
 
   }
+
+  public getOpenDataSoftUrl(){
+    return this.openDataSoftUrl;
+  }
+  public getCommuneDatasetID(){
+    return this.communeDatasetID
+  }
+  public getEpciDatasetID(){
+    return this.epciDatasetID
+  }
+  public getIrisDatasetID(){
+    return this.irisDatasetID
+  }
 }

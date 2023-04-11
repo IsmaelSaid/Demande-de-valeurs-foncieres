@@ -6,7 +6,7 @@ import { CONFIG } from 'src/app/configuration/config';
   providedIn: 'root'
 })
 export class PgsqlBack {
-  private url = window.location.href
+  private url = window.location.href;
   constructor(private http: HttpClient) { }
 
   getCountMutations(code_insee : string){
@@ -16,5 +16,8 @@ export class PgsqlBack {
   getCountTypeLocal(code_insee : string){
     let url = this.url + CONFIG.countTypeLocalEndpoint + code_insee;
     return this.http.get(url);
+  }
+  public getURL(){
+    return this.url;
   }
 }
