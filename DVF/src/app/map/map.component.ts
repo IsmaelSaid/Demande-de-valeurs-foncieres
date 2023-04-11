@@ -2,8 +2,9 @@ import { Component, AfterViewInit, OnInit, isDevMode } from '@angular/core';
 import { Carte } from '../models/carte.model';
 import { HttpClientODS } from 'src/services/http-client-open-data-soft.service';
 import { PgsqlBack } from 'src/services/pgsql-back.service';
-import { Analyse } from '../models/analyse.model';
-import { TopLevelSpec } from 'vega-lite/build/src/spec';
+import { AnalyseDiagrammeCirculaire } from '../models/analyse-pie-plot.model';
+import { AnalyseLinePlot } from '../models/analyse-line-plot.model';
+import { AnalyseBar } from '../models/analyse-bar-plot.model';
 
 @Component({
   selector: 'app-map',
@@ -12,105 +13,55 @@ import { TopLevelSpec } from 'vega-lite/build/src/spec';
 })
 export class MapComponent implements AfterViewInit, OnInit {
   carte!: Carte;
-  analyse = new Analyse("annal1", {
-    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-    data: { "url": 'http://localhost:8080/api/global/vente/' },
-    "layer": [
-      {
-        "mark": {"type":"line",point:true},
-        "encoding": {
-          "x": {
-            "field": "anneemut",
-            "type": "ordinal"
-          },
-          "y": {
-            "field": "nombre",
-            "type": "quantitative"
-          },
-          "color": {
-            "field": "type",
-            "type": "nominal"
-          }
-        }
-      }
-    ]
-  });
 
-  analyse2 = new Analyse("annal2", {
-    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-    data: { "url": 'http://localhost:8080/api/global/vente/' },
-    "layer": [
-      {
-        "mark": "bar",
-        "encoding": {
-          "x": {
-            "field": "anneemut",
-            "type": "ordinal"
-          },
-          "y": {
-            "field": "nombre",
-            "type": "quantitative"
-          },
-          "color": {
-            "field": "type",
-            "type": "nominal"
-          }
-        }
-      }
-    ]
-  });
 
-  analyse3 = new Analyse("annal3", {
-    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-    data: { "url": 'http://localhost:8080/api/global/vente/' },
-    "mark": {"type": "arc", "tooltip": true},
-    "encoding": {
-      "theta": { "aggregate": "mean", "field": "nombre" },
-      "color": { "field": "type", "type": "nominal" }
-    }
-  });
+  analyse1 = new AnalyseLinePlot("annal1",
+    "http://localhost:8080/api/global/vente/",
+    "anneemut",
+    "ordinal",
+    "nombre",
+    "quantitative",
+    "type",
+    "nominal")
 
-  analyse4 = new Analyse("annal5", {
-    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-    data: { "url": 'http://localhost:8080/api/global/type_local_vendu_par_commune' },
-    "layer": [
-      {
-        "mark": "bar",
-        "encoding": {
-          "x": {
-            "field": "l_codinsee",
-            "type": "ordinal"
-          },
-          "y": {
-            "field": "nb_vendu",
-            "type": "quantitative"
-          },
-          "color": { "field": "type", "type": "nominal" }
-        }
-      }
-    ]
-  });
-  
-  analyse5 = new Analyse("annal6", {
-    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-    data: { "url": 'http://localhost:8080/api/global/evolution_prix_par_type_local/' },
-    "layer": [
-      {
-        "mark": {"type":"line",point:true},
-        "encoding": {
-          "x": {
-            "field": "anneemut",
-            "type": "ordinal"
-          },
-          "y": {
-            "field": "prix_m2_median",
-            "type": "quantitative"
-          },
-          "color": { "field": "type", "type": "nominal" }
-        }
-      }
-    ]
-  });
+
+  analyse2 = new AnalyseBar("annal2",
+    "http://localhost:8080/api/global/vente/",
+    "anneemut",
+    "ordinal",
+    "nombre",
+    "quantitative",
+    "type",
+    "nominal")
+
+
+  analyse3 = new AnalyseDiagrammeCirculaire("annal3",
+    "http://localhost:8080/api/global/vente/",
+    "type",
+    "nominal",
+    "mean",
+    "nombre");
+
+
+
+  analyse4 = new AnalyseBar("annal4",
+    "http://localhost:8080/api/global/type_local_vendu_par_commune",
+    "l_codinsee",
+     "ordinal",
+     "nb_vendu",
+     "quantitative",
+     "type",
+     "nominal")
+
+
+  analyse5 = new AnalyseLinePlot("annal5",
+    "http://localhost:8080/api/global/evolution_prix_par_type_local/",
+    "anneemut",
+     "ordinal",
+     "prix_m2_median",
+     "quantitative", 
+    "type", 
+    "nominal")
 
   constructor(private http: HttpClientODS, private pgsql: PgsqlBack) {
     this.carte = new Carte(http);
