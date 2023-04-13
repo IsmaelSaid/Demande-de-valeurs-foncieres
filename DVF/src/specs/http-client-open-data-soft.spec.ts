@@ -1,11 +1,10 @@
 import { HttpClientODS } from "src/services/http-client-open-data-soft.service";
-// Http testing module and mocking controller
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 // Other imports
 import { TestBed } from '@angular/core/testing';
 
-describe("http client ODS",()=>{
+describe("test service ODS",()=>{
     let service:HttpClientODS;
     let httpmock: HttpTestingController;
 

@@ -2,7 +2,7 @@ import { Component, AfterViewInit, OnInit, isDevMode } from '@angular/core';
 import { Carte } from '../models/carte.model';
 import { HttpClientODS } from 'src/services/http-client-open-data-soft.service';
 import { PgsqlBack } from 'src/services/pgsql-back.service';
-import { AnalyseDiagrammeCirculaire } from '../models/analyse-pie-plot.model';
+import { AnalysePiePlot } from '../models/analyse-pie-plot.model';
 import { AnalyseLinePlot } from '../models/analyse-line-plot.model';
 import { AnalyseBar } from '../models/analyse-bar-plot.model';
 
@@ -35,7 +35,7 @@ export class MapComponent implements AfterViewInit, OnInit {
     "nominal")
 
 
-  analyse3 = new AnalyseDiagrammeCirculaire("annal3",
+  analyse3 = new AnalysePiePlot("annal3",
     "http://localhost:8080/api/global/vente/",
     "type",
     "nominal",

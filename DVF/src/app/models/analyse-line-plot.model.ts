@@ -1,24 +1,20 @@
 import { TopLevelSpec, compile } from 'vega-lite';
-import { Aggregate } from "vega-lite/build/src/aggregate";
 import { StandardType } from "vega-lite/build/src/type";
 import { Analyse } from "./analyse.model";
-import * as vega from 'vega';
-
 export class AnalyseLinePlot extends Analyse {
-  constructor(
-    nomAnalyse: string,
-    public url: string,
-    public xField: string,
-    public xType: string,
-    public yField: string,
-    public yType: string,
-    public colorField: string,
-    public colorType: string
-  ) { super(nomAnalyse) }
+  constructor( nomAnalyse: string, public url: string, xField:string, xType : string, yField : string, yType : string, colorField:string, colorType:string) {
+    super(nomAnalyse)
+    this.xField = xField;
+    this.xType = xType;
+    this.yField = yField;
+    this.yType = yType;
+    this.colorField = colorField;
+    this.colorType = colorType;
+  }
 
   createSpec(): TopLevelSpec {
     return {
-      $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+      $schema: this.schema,
       data: { "url": this.url },
       "layer": [
         {
@@ -37,11 +33,5 @@ export class AnalyseLinePlot extends Analyse {
         }
       ]
     };
-  }
-
-  public override createVegaView(): void {
-    this.createDiv()
-    const vegaSpec = compile(this.createSpec(), { config: this.getConfig() }).spec;
-    new vega.View(vega.parse(vegaSpec)).renderer('canvas').initialize('#' + this.nomAnalyse).run();
   }
 }

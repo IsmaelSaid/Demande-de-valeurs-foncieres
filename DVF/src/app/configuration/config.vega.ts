@@ -28,5 +28,6 @@ export const CONFIGVEGA = {
             "#a6bddb",
             "#e2ddf2"
         ]
-    }}
+    }},
+    schema: "https://vega.github.io/schema/vega-lite/v5.json"
 }
