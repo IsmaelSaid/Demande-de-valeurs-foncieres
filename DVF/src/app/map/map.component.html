@@ -1,7 +1,9 @@
 <div id="map"></div>
-<app-analyse [analyse]="analyse1"></app-analyse>
+<!-- <app-analyse [analyse]="analyse1"></app-analyse>
 <app-analyse [analyse]="analyse2"></app-analyse>
 <app-analyse [analyse]="analyse3"></app-analyse>
 <app-analyse [analyse]="analyse4"></app-analyse>
-<app-analyse [analyse]="analyse5"></app-analyse>
+<app-analyse [analyse]="analyse5"></app-analyse> -->
+
+<app-analyse *ngFor="let analyse of analyses"[analyse]="analyse" ></app-analyse>
 <div id="analyse"></div>

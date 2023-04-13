@@ -12,5 +12,8 @@ export const CONFIG = {
     epciDatasetID : "intercommunalites-millesime-france/",
     irisDatasetAssets:"/assets/iris-millesime-la-reunion.json",
     countMutationsEnpoint:"api/count/mutations/",
-    countTypeLocalEndpoint:"api/count/typelocal/"
+    countTypeLocalEndpoint:"api/count/typelocal/",
+    apiGlobalVente : "api/global/vente/",
+    apiGlobalTypeLocalVenduParCommune : "api/global/type_local_vendu_par_commune/",
+    apiGlobalEvolutionPrixParTypeLocal :"api/global/evolution_prix_par_type_local/"
  };

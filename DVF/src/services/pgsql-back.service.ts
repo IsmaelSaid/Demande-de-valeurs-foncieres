@@ -1,6 +1,10 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CONFIG } from 'src/app/configuration/config';
+import { AnalyseLinePlot } from 'src/app/models/analyse-line-plot.model';
+import { AnalyseBar } from 'src/app/models/analyse-bar-plot.model';
+import { AnalysePiePlot } from 'src/app/models/analyse-pie-plot.model';
+import { Analyse } from 'src/app/models/analyse.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,4 +24,52 @@ export class PgsqlBack {
   public getURL(){
     return this.url;
   }
+
+
+  public getAnalyseDefaut(): Analyse[] {
+    return [
+      new AnalyseLinePlot("annal1",
+        this.url+CONFIG.apiGlobalVente,
+        "anneemut",
+        "ordinal",
+        "nombre",
+        "quantitative",
+        "type",
+        "nominal"),
+
+      new AnalyseBar("annal2",
+        this.url+CONFIG.apiGlobalVente,
+        "anneemut",
+        "ordinal",
+        "nombre",
+        "quantitative",
+        "type",
+        "nominal"),
+      new AnalysePiePlot("annal3",
+        this.url+CONFIG.apiGlobalVente,
+        "type",
+        "nominal",
+        "mean",
+        "nombre"),
+      new AnalyseBar("annal4",
+        this.url + CONFIG.apiGlobalTypeLocalVenduParCommune,
+        "l_codinsee",
+        "ordinal",
+        "nb_vendu",
+        "quantitative",
+        "type",
+        "nominal"),
+      new AnalyseLinePlot("annal5",
+        this.url + CONFIG.apiGlobalEvolutionPrixParTypeLocal,
+        "anneemut",
+        "ordinal",
+        "prix_m2_median",
+        "quantitative",
+        "type",
+        "nominal")
+    ]
+  }
+
+
+
 }
