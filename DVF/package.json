@@ -44,7 +44,8 @@
     "karma-jasmine-html-reporter": "~2.0.0n",
     "pg": "^8.10.0",
     "typescript": "~4.9.4",
-    "vega": "^5.24.0"
+    "vega": "^5.24.0",
+    "vega-embed": "^6.21.3"
   },
   "engines": {
     "node": "19.6.0",

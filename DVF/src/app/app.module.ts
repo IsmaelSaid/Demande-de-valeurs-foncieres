@@ -4,11 +4,13 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
+import { AnalyseComponent } from './analyse/analyse.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent
+    MapComponent,
+    AnalyseComponent
   ],
   imports: [
     BrowserModule,
