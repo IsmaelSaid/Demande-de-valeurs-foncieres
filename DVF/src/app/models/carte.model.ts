@@ -33,10 +33,16 @@ export class Carte extends EventEmitter{
             let layerGroupGeometrieCommunes = L.layerGroup();
             response.forEach((value) => {
                 let geometrie = value["geo_shape"];
-                let nom = value["com_name_upper"];
+                // let nom = value["com_name_upper"];
+                // console.info(value);
+                console.log(value);
+                
                 layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))).on("click", (e: L.LeafletMouseEvent) => {
                     // Emission d'un evenement
-                    this.emit("value1")
+                    this.emit({
+                        typeEvenement:"commune",
+                        codeInsee:value['com_code'][0]
+                    })
                 }));
             })
             this.layerControl.addOverlay(layerGroupGeometrieCommunes, "Géométrie-communes");

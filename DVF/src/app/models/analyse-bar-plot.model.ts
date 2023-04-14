@@ -2,8 +2,8 @@ import { TopLevelSpec, compile } from 'vega-lite';
 import { StandardType } from "vega-lite/build/src/type";
 import { Analyse } from "./analyse.model";
 export class AnalyseBar extends Analyse {
-  constructor(nomAnalyse: string, public url: string, xField: string, xType: string, yField: string, yType: string, colorField: string, colorType: string) {
-    super(nomAnalyse)
+  constructor(nomAnalyse: string, titre:string, public url: string, xField: string, xType: string, yField: string, yType: string, colorField: string, colorType: string) {
+    super(nomAnalyse,titre)
     this.xField = xField;
     this.xType = xType;
     this.yField = yField;
@@ -15,6 +15,7 @@ export class AnalyseBar extends Analyse {
   createSpec(): TopLevelSpec {
     return {
       $schema: this.schema,
+      title:this.nomAnalyse,
       data: { "url": this.url },
       "layer": [
         {

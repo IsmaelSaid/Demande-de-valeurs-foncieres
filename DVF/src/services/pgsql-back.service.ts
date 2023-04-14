@@ -28,7 +28,7 @@ export class PgsqlBack {
 
   public getAnalyseDefaut(): Analyse[] {
     return [
-      new AnalyseBar("annal2",
+      new AnalyseBar("annal2","mon annalyse",
         this.url+CONFIG.apiGlobalVente,
         "anneemut",
         "ordinal",
@@ -36,7 +36,7 @@ export class PgsqlBack {
         "quantitative",
         "type",
         "nominal"),
-      new AnalyseBar("annal4",
+      new AnalyseBar("annal4","mon annalyse",
         this.url + CONFIG.apiGlobalTypeLocalVenduParCommune,
         "l_codinsee",
         "ordinal",
@@ -44,23 +44,35 @@ export class PgsqlBack {
         "quantitative",
         "type",
         "nominal"),
-        new AnalyseLinePlot("annal5",
+        new AnalyseLinePlot("annal5","mon annalyse",
         this.url + CONFIG.apiGlobalEvolutionPrixParTypeLocal,
         "anneemut",
         "ordinal",
         "prix_m2_median",
         "quantitative",
         "type",
+        "nominal")
+      ]
+    }
+
+    public getAnalyseParCommune(code_insee:string):Analyse[] {
+      return [
+        new AnalyseLinePlot("an2","mon annalyse",
+        this.url + CONFIG.apiCommuneEvolutionPrixParTypeLocal+code_insee,
+        "anneemut",
+        "ordinal",
+        "prix_m2_median",
+        "quantitative",
+        "type",
         "nominal"),
-        
-        new AnalyseBar("annal1",
-          this.url + CONFIG.apiGlobalprixMedianMaisonAppartement,
-          "type",
-          "ordinal",
-          "prix_m2_median",
-          "quantitative",
-          "type",
-          "nominal"),
+        new AnalyseBar("an3","mon annalyse",
+        this.url + CONFIG.apiCommunetypeLocalVenduParCommuneParAnnee+code_insee,
+        "anneemut",
+        "ordinal",
+        "nb_vendu",
+        "quantitative",
+        "type",
+        "nominal")
       ]
     }
 }

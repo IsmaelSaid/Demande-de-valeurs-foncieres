@@ -14,6 +14,10 @@ export const CONFIG = {
     countTypeLocalEndpoint:"api/count/typelocal/",
     apiGlobalVente : "/api/global/vente/",
     apiGlobalTypeLocalVenduParCommune : "api/global/type_local_vendu_par_commune/",
-    apiGlobalEvolutionPrixParTypeLocal :"/api/global/evolution_prix_par_type_local/",
-    apiGlobalprixMedianMaisonAppartement:"api/global/prix_median_maison_appartement/"
+    apiGlobalEvolutionPrixParTypeLocal :"api/global/evolution_prix_par_type_local/",
+    apiGlobalprixMedianMaisonAppartement:"api/global/prix_median_maison_appartement/",
+    apiCommunetypeLocalVenduParCommuneParAnnee:"api/commune/type_local_vendu_par_commune_par_annee/",
+    apiCommuneEvolutionPrixParTypeLocal:"api/commune/evolution_prix_par_type_local/",
+    apiCommuneMedianMaisonAppartement:"api/commune/prix_median_maison_appartement/"
  };
+//  Quel enfer
