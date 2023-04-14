@@ -15,5 +15,6 @@ export const CONFIG = {
     countMutationsEnpoint:"api/count/mutations/",
     apiGlobalVente : "api/global/vente/",
     apiGlobalTypeLocalVenduParCommune : "api/global/type_local_vendu_par_commune/",
-    apiGlobalEvolutionPrixParTypeLocal :"api/global/evolution_prix_par_type_local/"
+    apiGlobalEvolutionPrixParTypeLocal :"api/global/evolution_prix_par_type_local/",
+    apiGlobalprixMedianMaisonAppartement:"api/global/prix_median_maison_appartement/"
  };

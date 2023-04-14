@@ -28,15 +28,6 @@ export class PgsqlBack {
 
   public getAnalyseDefaut(): Analyse[] {
     return [
-      new AnalyseLinePlot("annal1",
-        this.url+CONFIG.apiGlobalVente,
-        "anneemut",
-        "ordinal",
-        "nombre",
-        "quantitative",
-        "type",
-        "nominal"),
-
       new AnalyseBar("annal2",
         this.url+CONFIG.apiGlobalVente,
         "anneemut",
@@ -45,12 +36,6 @@ export class PgsqlBack {
         "quantitative",
         "type",
         "nominal"),
-      new AnalysePiePlot("annal3",
-        this.url+CONFIG.apiGlobalVente,
-        "type",
-        "nominal",
-        "mean",
-        "nombre"),
       new AnalyseBar("annal4",
         this.url + CONFIG.apiGlobalTypeLocalVenduParCommune,
         "l_codinsee",
@@ -59,17 +44,23 @@ export class PgsqlBack {
         "quantitative",
         "type",
         "nominal"),
-      new AnalyseLinePlot("annal5",
+        new AnalyseLinePlot("annal5",
         this.url + CONFIG.apiGlobalEvolutionPrixParTypeLocal,
         "anneemut",
         "ordinal",
         "prix_m2_median",
         "quantitative",
         "type",
-        "nominal")
-    ]
-  }
-
-
-
+        "nominal"),
+        
+        new AnalyseBar("annal1",
+          this.url + CONFIG.apiGlobalprixMedianMaisonAppartement,
+          "type",
+          "ordinal",
+          "prix_m2_median",
+          "quantitative",
+          "type",
+          "nominal"),
+      ]
+    }
 }

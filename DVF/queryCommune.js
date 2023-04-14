@@ -22,8 +22,8 @@ const pool = getPool();
  * @returns {void}
  */
 const natureMutationCommune = (request, response) => {
-  const codeinsee = request.params.codeinsee
-  console.info("natureMutationCommune : "+codeinsee)
+  const codeinsee = request.params.codeinsee;
+  console.info("natureMutationCommune : " + codeinsee);
   pool.query(
     `WITH total_mutations AS (
       SELECT COUNT(*) FROM dvf.mutation
@@ -39,7 +39,8 @@ const natureMutationCommune = (request, response) => {
       GROUP BY 
       libnatmut
       ORDER BY 
-      nombre_de_mutation ASC;`,[codeinsee],
+      nombre_de_mutation ASC;`,
+    [codeinsee],
     (error, results) => {
       if (error) {
         throw error;
@@ -49,23 +50,22 @@ const natureMutationCommune = (request, response) => {
   );
 };
 
-
 /**
  * Renvoie les statistiques sur les types de locaux pour une commune donnée.
- * 
+ *
  * @param {Object} request - L'objet représentant la requête HTTP reçue.
  * @param {Object} response - L'objet représentant la réponse HTTP à renvoyer.
  * @returns {void}
- * 
+ *
  * @throws {Error} Lance une erreur si une erreur SQL se produit.
- * 
+ *
  * @example
  * // Requête GET http://localhost:8080/api/type_local/vente/97418
  * typeLocalCommune(request, response);
  */
 const typeLocalCommune = (request, response) => {
   const codeinsee = request.params.codeinsee;
-  console.info("typeLocalCommune : "+codeinsee)
+  console.info("typeLocalCommune : " + codeinsee);
   pool.query(
     `SELECT 
       anneemut,
@@ -106,12 +106,12 @@ const typeLocalCommune = (request, response) => {
  * @example
  * // http://localhost:3000/api/commune/vente/97418
  * // Code INSEE de la commune de Sainte-Marie
- * 
-*/
+ *
+ */
 
 const venteAnneeCommune = (request, response) => {
   const codeinsee = request.params.codeinsee;
-  console.info("venteAnneeCommune : "+codeinsee)
+  console.info("venteAnneeCommune : " + codeinsee);
   pool.query(
     `SELECT COUNT(*) as nombre_ventes, anneemut
     FROM 
@@ -121,7 +121,113 @@ const venteAnneeCommune = (request, response) => {
     GROUP BY 
       anneemut
     ORDER BY 
-      anneemut ASC;`,[codeinsee],
+      anneemut ASC;`,
+    [codeinsee],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
+const typeLocalVenduParCommuneParAnnee = (request, response) => {
+  const codeinsee = request.params.codeinsee;
+  console.info("Type local vendu par commune et par année : " + codeinsee);
+  pool.query(
+    `SELECT 
+    anneemut,
+    sum(nblocapt) as nb_vendu,
+    concat('','Appartement') as Type
+    FROM dvf.mutation
+    where libnatmut = 'Vente'
+    AND 
+    $1 = ANY(l_codinsee)
+    and 
+    nbcomm = 1
+    group by anneemut
+UNION
+SELECT 
+    anneemut,
+    sum(nblocmai) as nb_vendu,
+    concat('','Maison') as Type
+    FROM dvf.mutation
+    where libnatmut = 'Vente'
+    AND 
+    $1 = ANY(l_codinsee)
+    and 
+    nbcomm = 1
+    group by anneemut`,
+    [codeinsee],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
+const evolutionPrixParTypeLocalCommune = (request, response) => {
+  const codeinsee = request.params.codeinsee;
+  console.info("Type local vendu par commune et par année : " + codeinsee);
+  pool.query(
+    `SELECT 
+    anneemut, 
+    CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbatmai) AS NUMERIC(10,2)) as prix_m2_median,
+    concat('','Maison') as Type
+    FROM dvf.mutation
+    WHERE libnatmut = 'Vente'
+    AND nblocmai > 0
+    AND nblocapt = 0
+    and $1 = any(l_codinsee)
+    GROUP BY anneemut
+    UNION
+    SELECT 
+        anneemut, 
+        CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbati) AS NUMERIC(10,2)) as prix_m2_median,
+        concat('','Appartement') as Type
+    FROM dvf.mutation
+    WHERE libnatmut = 'Vente'
+    AND nblocmai = 0
+    AND nblocapt > 0
+    AND sbatapt > 0
+    and $1 = any(l_codinsee)
+    GROUP BY anneemut
+    ORDER BY anneemut ASC`,
+    [codeinsee],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
+const prixMedianMaisonAppartementCommune = (request, response) => {
+  const codeinsee = request.params.codeinsee;
+  console.info("Type local vendu par commune et par année : " + codeinsee);
+  pool.query(
+    `SELECT 
+    CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc) AS NUMERIC(10,2)) as prix_m2_median,
+    concat('','Maison') as Type
+    FROM dvf.mutation
+    WHERE libnatmut = 'Vente'
+    AND nblocmai > 0
+    AND nblocapt = 0
+    AND $1 = any(l_codinsee)
+    UNION
+    SELECT 
+        CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc) AS NUMERIC(10,2)) as prix_m2_median,
+        concat('','Appartement') as Type
+    FROM dvf.mutation
+    WHERE libnatmut = 'Vente'
+    AND nblocmai = 0
+    AND nblocapt > 0
+    AND $1 = any(l_codinsee)`,
+    [codeinsee],
     (error, results) => {
       if (error) {
         throw error;
@@ -134,5 +240,8 @@ const venteAnneeCommune = (request, response) => {
 module.exports = {
   natureMutationCommune,
   typeLocalCommune,
-  venteAnneeCommune
+  venteAnneeCommune,
+  typeLocalVenduParCommuneParAnnee,
+  evolutionPrixParTypeLocalCommune,
+  prixMedianMaisonAppartementCommune
 };

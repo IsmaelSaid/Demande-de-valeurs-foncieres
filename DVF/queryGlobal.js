@@ -193,10 +193,38 @@ ORDER BY anneemut ASC`,
   );
 };
 
+const prixMedianMaisonAppartement = (request, response) => {
+  console.info("Prix median des appartements et des maisons");
+  pool.query(
+    `SELECT 
+    CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc) AS NUMERIC(10,2)) as prix_m2_median,
+    concat('','Maison') as Type
+FROM dvf.mutation
+WHERE libnatmut = 'Vente'
+AND nblocmai > 0
+AND nblocapt = 0
+UNION
+SELECT 
+    CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc) AS NUMERIC(10,2)) as prix_m2_median,
+    concat('','Appartement') as Type
+FROM dvf.mutation
+WHERE libnatmut = 'Vente'
+AND nblocmai = 0
+AND nblocapt > 0`,
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
 module.exports = {
   natureMutationGlobal,
   typeLocalGlobal,
   venteAnneeGlobal,
   typeLocalVenduParCommune,
-  evolutionPrixParTypeLocal
+  evolutionPrixParTypeLocal,
+  prixMedianMaisonAppartement
 };
