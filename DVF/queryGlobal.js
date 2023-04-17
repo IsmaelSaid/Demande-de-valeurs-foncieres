@@ -170,6 +170,7 @@ const evolutionPrixParTypeLocal = (request, response) => {
 FROM dvf.mutation
 WHERE libnatmut = 'Vente'
 AND nblocmai > 0
+and anneemut != 2022
 AND nblocapt = 0
 GROUP BY anneemut
 UNION
@@ -180,6 +181,7 @@ SELECT
 FROM dvf.mutation
 WHERE libnatmut = 'Vente'
 AND nblocmai = 0
+and anneemut != 2022
 AND nblocapt > 0
 AND sbatapt > 0
 GROUP BY anneemut
@@ -202,6 +204,7 @@ const prixMedianMaisonAppartement = (request, response) => {
 FROM dvf.mutation
 WHERE libnatmut = 'Vente'
 AND nblocmai > 0
+AND anneemut != 2022
 AND nblocapt = 0
 UNION
 SELECT 
@@ -210,6 +213,7 @@ SELECT
 FROM dvf.mutation
 WHERE libnatmut = 'Vente'
 AND nblocmai = 0
+AND anneemut != 2022
 AND nblocapt > 0`,
     (error, results) => {
       if (error) {

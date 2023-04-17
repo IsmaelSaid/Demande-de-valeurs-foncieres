@@ -3,7 +3,6 @@ import { Carte } from '../models/carte.model';
 import { HttpClientODS } from 'src/services/http-client-open-data-soft.service';
 import { PgsqlBack } from 'src/services/pgsql-back.service';
 import { Analyse } from '../models/analyse.model';
-
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -12,6 +11,7 @@ import { Analyse } from '../models/analyse.model';
 export class MapComponent implements AfterViewInit, OnInit {
   carte!: Carte;
   analyses!: Analyse[]
+
 
   constructor(private http: HttpClientODS, private postgresSql: PgsqlBack) {
     this.carte = new Carte(http);

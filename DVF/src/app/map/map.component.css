@@ -1,10 +1,10 @@
-#map{
-  height: 100%;
+#map {
+  position: relative;
+  height: 100%;  /* or as desired */
+  width: 100%;  /* This means "100% of the width of its container", the .col-md-8 */
 }
 
 #analyse{
-
-  border: 1px solid black;
   height: 100vh;
   background-color: rgb(255, 255, 255);
 }

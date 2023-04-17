@@ -146,6 +146,7 @@ const typeLocalVenduParCommuneParAnnee = (request, response) => {
     $1 = ANY(l_codinsee)
     and 
     nbcomm = 1
+    AND anneemut != 2022
     group by anneemut
 UNION
 SELECT 
@@ -158,6 +159,7 @@ SELECT
     $1 = ANY(l_codinsee)
     and 
     nbcomm = 1
+    AND anneemut != 2022
     group by anneemut`,
     [codeinsee],
     (error, results) => {
@@ -180,6 +182,7 @@ const evolutionPrixParTypeLocalCommune = (request, response) => {
     FROM dvf.mutation
     WHERE libnatmut = 'Vente'
     AND nblocmai > 0
+    AND anneemut != 2022
     AND nblocapt = 0
     and $1 = any(l_codinsee)
     GROUP BY anneemut
@@ -191,6 +194,7 @@ const evolutionPrixParTypeLocalCommune = (request, response) => {
     FROM dvf.mutation
     WHERE libnatmut = 'Vente'
     AND nblocmai = 0
+    AND anneemut != 2022
     AND nblocapt > 0
     AND sbatapt > 0
     and $1 = any(l_codinsee)
@@ -216,6 +220,7 @@ const prixMedianMaisonAppartementCommune = (request, response) => {
     FROM dvf.mutation
     WHERE libnatmut = 'Vente'
     AND nblocmai > 0
+    AND anneemut =! 2022
     AND nblocapt = 0
     AND $1 = any(l_codinsee)
     UNION
@@ -225,6 +230,7 @@ const prixMedianMaisonAppartementCommune = (request, response) => {
     FROM dvf.mutation
     WHERE libnatmut = 'Vente'
     AND nblocmai = 0
+    AND anneemut =! 2022
     AND nblocapt > 0
     AND $1 = any(l_codinsee)`,
     [codeinsee],

@@ -15,7 +15,7 @@ export class AnalyseLinePlot extends Analyse {
   createSpec(): TopLevelSpec {
     return {
       $schema: this.schema,
-      title:this.nomAnalyse,
+      title:this.titre,
       data: { "url": this.url },
       "layer": [
         {
@@ -23,11 +23,13 @@ export class AnalyseLinePlot extends Analyse {
           "encoding": {
             "x": {
               "field": this.xField,
-              "type": <StandardType>this.xType
+              "type": <StandardType>this.xType,
+              "axis":{"title":"Année"}
             },
             "y": {
               "field": this.yField,
-              "type": <StandardType>this.yType
+              "type": <StandardType>this.yType,
+              "axis":{"title":"Prix médian du m² (EUR)"}
             },
             "color": { "field": this.colorField, "type": <StandardType>this.colorType }
           }

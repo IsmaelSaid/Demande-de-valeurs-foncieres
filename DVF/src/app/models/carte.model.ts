@@ -26,7 +26,7 @@ export class Carte extends EventEmitter{
         this.initEpciTiles(this.http);
         this.initIrisTiles(this.http);
         this.layerControl.addTo(this.map);
-        
+
     }
     private initCommunesTiles(http: HttpClientODS) {
         http.getCommunes().subscribe(response => {
@@ -36,8 +36,20 @@ export class Carte extends EventEmitter{
                 // let nom = value["com_name_upper"];
                 // console.info(value);
                 console.log(value);
-                
-                layerGroupGeometrieCommunes.addLayer(L.geoJSON(JSON.parse(JSON.stringify(geometrie))).on("click", (e: L.LeafletMouseEvent) => {
+                let myStyle = {
+                    "weight": 1,
+                    "opacity": 0.5
+                };
+                let layer = L.geoJSON(JSON.parse(JSON.stringify(geometrie))).setStyle(myStyle).on('mouseover',(e)=>{
+                    let mouseover = { "weight": 2, "opacity": 0.9};
+                    e.target.setStyle(mouseover)})
+
+                layer.on('mouseout',(e)=>{
+                    let mouseover = { "weight": 1, "opacity": 0.5};
+                    e.target.setStyle(mouseover)})
+
+                    
+                layerGroupGeometrieCommunes.addLayer(layer.on("click", (e: L.LeafletMouseEvent) => {
                     // Emission d'un evenement
                     this.emit({
                         typeEvenement:"commune",

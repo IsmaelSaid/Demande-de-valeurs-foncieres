@@ -15,7 +15,7 @@ export class AnalysePiePlot extends Analyse {
     createSpec(): TopLevelSpec {
         return {
             $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
-            title:this.nomAnalyse,
+            title:this.titre,
             data: { "url": this.url },
             "mark": { "type": "arc", "tooltip": true },
             "encoding": {
