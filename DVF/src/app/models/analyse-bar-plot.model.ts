@@ -2,8 +2,8 @@ import { TopLevelSpec, compile } from 'vega-lite';
 import { StandardType } from "vega-lite/build/src/type";
 import { Analyse } from "./analyse.model";
 export class AnalyseBar extends Analyse {
-  constructor(nomAnalyse: string, public url: string, xField: string, xType: string, yField: string, yType: string, colorField: string, colorType: string) {
-    super(nomAnalyse)
+  constructor(nomAnalyse: string, titre:string, public url: string, xField: string, xType: string, yField: string, yType: string, colorField: string, colorType: string) {
+    super(nomAnalyse,titre)
     this.xField = xField;
     this.xType = xType;
     this.yField = yField;
@@ -15,6 +15,7 @@ export class AnalyseBar extends Analyse {
   createSpec(): TopLevelSpec {
     return {
       $schema: this.schema,
+      title:this.titre,
       data: { "url": this.url },
       "layer": [
         {
@@ -22,11 +23,13 @@ export class AnalyseBar extends Analyse {
           "encoding": {
             "x": {
               "field": this.xField,
-              "type": <StandardType>this.xType
+              "type": <StandardType>this.xType,
+              "axis":{"title" : "Année"}
             },
             "y": {
               "field": this.yField,
-              "type": <StandardType>this.yType
+              "type": <StandardType>this.yType,
+              "axis":{"title" : "Nombre de vente"}
             },
             "color": { "field": this.colorField, "type": <StandardType>this.colorType }
           }

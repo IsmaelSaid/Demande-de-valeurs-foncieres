@@ -28,48 +28,51 @@ export class PgsqlBack {
 
   public getAnalyseDefaut(): Analyse[] {
     return [
-      new AnalyseLinePlot("annal1",
+      new AnalyseLinePlot("annal5","Reunion",
+      this.url + CONFIG.apiGlobalEvolutionPrixParTypeLocal,
+      "anneemut",
+      "ordinal",
+      "prix_m2_median",
+      "quantitative",
+      "type",
+      "nominal"),
+      new AnalyseBar("annal2","Reunion",
         this.url+CONFIG.apiGlobalVente,
         "anneemut",
         "ordinal",
         "nombre",
         "quantitative",
         "type",
-        "nominal"),
+        "nominal")
+      // new AnalyseBar("annal4","Reunion",
+      //   this.url + CONFIG.apiGlobalTypeLocalVenduParCommune,
+      //   "l_codinsee",
+      //   "ordinal",
+      //   "nb_vendu",
+      //   "quantitative",
+      //   "type",
+      //   "nominal"),
+      ]
+    }
 
-      new AnalyseBar("annal2",
-        this.url+CONFIG.apiGlobalVente,
-        "anneemut",
-        "ordinal",
-        "nombre",
-        "quantitative",
-        "type",
-        "nominal"),
-      new AnalysePiePlot("annal3",
-        this.url+CONFIG.apiGlobalVente,
-        "type",
-        "nominal",
-        "mean",
-        "nombre"),
-      new AnalyseBar("annal4",
-        this.url + CONFIG.apiGlobalTypeLocalVenduParCommune,
-        "l_codinsee",
-        "ordinal",
-        "nb_vendu",
-        "quantitative",
-        "type",
-        "nominal"),
-      new AnalyseLinePlot("annal5",
-        this.url + CONFIG.apiGlobalEvolutionPrixParTypeLocal,
+    public getAnalyseParCommune(code_insee:string):Analyse[] {
+      return [
+        new AnalyseLinePlot("an2",code_insee,
+        this.url + CONFIG.apiCommuneEvolutionPrixParTypeLocal+code_insee,
         "anneemut",
         "ordinal",
         "prix_m2_median",
         "quantitative",
         "type",
+        "nominal"),
+        new AnalyseBar("an3",code_insee,
+        this.url + CONFIG.apiCommunetypeLocalVenduParCommuneParAnnee+code_insee,
+        "anneemut",
+        "ordinal",
+        "nb_vendu",
+        "quantitative",
+        "type",
         "nominal")
-    ]
-  }
-
-
-
+      ]
+    }
 }

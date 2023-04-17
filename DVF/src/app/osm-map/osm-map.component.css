@@ -1,0 +1,17 @@
+/* .map-container {
+    width:60%;
+    height:100%;
+    position: absolute;
+} */
+
+
+.map-container {
+    position: relative;
+    height: 100%;  /* or as desired */
+    width: 100%;  /* This means "100% of the width of its container", the .col-md-8 */
+  }
+  
+  #analyse{
+    height: 100vh;
+    background-color: rgb(255, 255, 255);
+  }
