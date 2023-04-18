@@ -1,29 +1,38 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
-import { Map, Control, DomUtil, ZoomAnimEvent, Layer, MapOptions, tileLayer, latLng, geoJSON, layerGroup, geoJson, MarkerClusterGroup, MarkerClusterGroupOptions, Marker, LayerGroup } from 'leaflet';
+/// <reference types='leaflet-sidebar-v2' />
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Map, Control, DomUtil, ZoomAnimEvent, Layer, MapOptions, tileLayer, latLng, geoJSON, layerGroup, geoJson, Marker, LayerGroup, SidebarOptions, control, LeafletMouseEvent } from 'leaflet';
 import { CONFIG } from '../configuration/config';
 import { HttpClientODS } from '../../services/http-client-open-data-soft.service';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-
+import { NgxSidebarControlModule } from '@runette/ngx-leaflet-sidebar';
+import { NgxSidebarControlComponent } from '@runette/ngx-leaflet-sidebar';
 import 'leaflet.markercluster';
-import { Analyse } from '../models/analyse.model';
+
 import { PgsqlBack } from 'src/services/pgsql-back.service';
 
 @Component({
   selector: 'app-osm-map',
   templateUrl: './osm-map.component.html',
-  styleUrls: ['./osm-map.component.css',]
+  styleUrls: ['./osm-map.component.css'],
+
 })
+
 export class OsmMapComponent implements OnInit, OnDestroy {
-  analyses:Analyse[]
-  // Configuration marker cluster
-  markerClusterOptions!: MarkerClusterGroupOptions;
-  markerClusterData: Marker[] = [];
-  markerClusterGroup!: MarkerClusterGroup;
+  @ViewChild(NgxSidebarControlComponent, { static: false }) sidebar!: NgxSidebarControlComponent;
 
   // Configuration des contrôles
-  controlOptions = {collapsed: true, position: 'topleft'}
+  controlOptions = { collapsed: false, position: 'topleft' }
   map!: Map;
   zoom!: number;
+  layers: Layer[] = []
+  layersControl:any
+  
+  public sidebarOptions: SidebarOptions = {
+    position: 'left',
+    autopan: false,
+    closeButton: false,
+    container: 'sidebar',
+  }
 
   // Configurations de la caarte
   @Input() options: MapOptions = {
@@ -36,49 +45,29 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     zoom: 10,
     center: latLng(latLng(CONFIG.localisationReunion[0], CONFIG.localisationReunion[1]))
   };
+
+
   
-
-  layers: Layer[] = []
-  layersControl = {
-    baseLayers: {
-      'communes': new Layer(),
-      'epci': new Layer(),
-      'departement':new Layer()
-    },
-    overlays: {}
-  }
-
-
+  
   // Configuration pour la programmation asynchrone
   @Output() map$: EventEmitter<Map> = new EventEmitter;
   @Output() zoom$: EventEmitter<number> = new EventEmitter;
-  @Output() addedlayer$: EventEmitter<LayerGroup> = new EventEmitter;
-  @Output() communeClick$: EventEmitter<string> = new EventEmitter;
+  @Output() selectCommune$: EventEmitter<{ type: string, commune: string }> = new EventEmitter;
 
 
-  constructor(private http: HttpClientODS,private postresql:PgsqlBack) {
+  constructor(private http: HttpClientODS, private postresql: PgsqlBack) {
+    this.selectCommune$.subscribe(this.handlerCommuneClick)
+  }
+  ngOnInit() {
+    this.layersControl = {
+      baseLayers: {
+      },
+      overlays: {}
+    }
     this.initCommunesTiles(this.http);
     this.initEpciTiles(this.http);
-    this.initDepartement(this.http)
-    this.analyses = this.postresql.getAnalyseDefaut()
-    this.addedlayer$.subscribe((val) => { this.addedlayerHandler(val) })
-    this.communeClick$.subscribe((val) =>{
-      console.log("trigger "+val);
-      this.analyses.forEach((analyse)=>{
-        // analyse.vegaview?.finalize()
-        // analyse.destroyView()
-
-      })
-      this.analyses = this.postresql.getAnalyseParCommune(val)
-      
-    })
   }
 
-  ngOnInit() {
-
-
-  }
-  
   ngOnDestroy() {
     this.map.clearAllEventListeners;
     this.map.remove();
@@ -89,6 +78,8 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     this.map$.emit(map);
     this.zoom = map.getZoom();
     this.zoom$.emit(this.zoom);
+    console.log("map ready");
+
   }
 
 
@@ -98,68 +89,50 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   }
 
   private initCommunesTiles(http: HttpClientODS) {
+    console.log("Chargement communes");
     http.getCommunes().subscribe(response => {
-      let layerGroupCommunes = layerGroup();
+      let layerGroupGeometrieCommunes = layerGroup();
       response.forEach((value) => {
         let geometrie = value["geo_shape"];
-        layerGroupCommunes.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))).on('click',(e: L.LeafletMouseEvent)=>{
-          // this.analyses.forEach((analyse)=>{analyse.destroyView()})
-          // this.analyses = this.postresql.getAnalyseParCommune()
-          this.communeClick$.emit(value['com_code'][0])
-        }))
-      })
+        let myStyle = {
+          "weight": 1,
+          "opacity": 0.5
+        };
+        let layer = geoJSON(JSON.parse(JSON.stringify(geometrie))).setStyle(myStyle).on('mouseover', (e) => {
+          let mouseover = { "weight": 3, "opacity": 0.9 };
+          e.target.setStyle(mouseover)
+        })
 
-      this.layersControl.baseLayers.communes = layerGroupCommunes
-    })
-  };
-  
+        layer.on('mouseout', (e) => {
+          let mouseover = { "weight": 1, "opacity": 0.5 };
+          e.target.setStyle(mouseover)
+        })
+        layerGroupGeometrieCommunes.addLayer(layer.on("click", (e: LeafletMouseEvent) => {
+          // Emission d'un evenement
+          this.selectCommune$.emit({
+            type: "commune",
+            commune: value['com_code'][0]
+          })
+        }));
+      })
+      this.layersControl.baseLayers['communes']=layerGroupGeometrieCommunes
+    });
+  }
   private initEpciTiles(http: HttpClientODS) {
     http.getEPCI().subscribe(response => {
+      console.log('chargement epci')
       let layerGroupGeometrieEpci = layerGroup();
       response.forEach((value) => {
         let geometrie = value["geo_shape"];
-        let layer = geoJSON(JSON.parse(JSON.stringify(geometrie))).on('click',(e)=>{
-          console.log("epci");
-          console.log(e);
-          
-        })
-        layerGroupGeometrieEpci.addLayer(layer);
+        layerGroupGeometrieEpci.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
       })
-      this.layersControl.baseLayers.epci = layerGroupGeometrieEpci
+      this.layersControl.baseLayers['epci']=layerGroupGeometrieEpci
     });
   }
-  
-  private initDepartement(http:HttpClientODS){
-    http.getDepartement().subscribe(response=>{
-      let layerGroupGeometrieDepartement = layerGroup();
-      response.forEach((value) => {
-        let geometrie = value["geo_shape"];
-        layerGroupGeometrieDepartement.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
-      })
-      layerGroupGeometrieDepartement.eachLayer((layer)=>{
-        layer.on('click',()=>{
-          console.log("default");
-          
-          console.log(layer);
-          this.analyses = this.postresql.getAnalyseDefaut()
 
-          
-        })
-      })
-      this.layersControl.baseLayers.departement = layerGroupGeometrieDepartement      
-    })
-  }
-
-  private addedlayerHandler(layer: LayerGroup) {
-  }
-  communeClickHandler(val: string) {
-    console.log("commune click hand"+val);
-    
-    this.analyses.forEach((analyse)=>{
-      analyse.destroyView()
-    })
-    this.analyses = this.postresql.getAnalyseParCommune(val)
-    
+  handlerCommuneClick(e : {type:string,commune:string}):void{
+    console.log(e.type);
+    console.log(e.commune);
   }
 
 }

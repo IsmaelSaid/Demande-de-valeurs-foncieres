@@ -3,22 +3,21 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
-import { MapComponent } from './map/map.component';
-import { AnalyseComponent } from './analyse/analyse.component';
-import { AnalyseMultipleComponent } from './analyse-multiple/analyse-multiple.component';
-import { CustomNavbarComponent } from './custom-navbar/custom-navbar.component';
+import { OsmMapComponent } from './osm-map/osm-map.component';
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { NgxSidebarControlModule } from '@runette/ngx-leaflet-sidebar';
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent,
-    AnalyseComponent,
-    AnalyseMultipleComponent,
-    CustomNavbarComponent
+    OsmMapComponent
   ],
   imports: [
     BrowserModule,
-    HttpClientModule
+    HttpClientModule,
+    LeafletModule,
+    NgxSidebarControlModule
   ],
   providers: [],
   bootstrap: [AppComponent]

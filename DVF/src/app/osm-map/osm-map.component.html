@@ -1,20 +1,14 @@
-<div class="row">
-    <div class="col-md-9">
-        <div class="map-container" leaflet 
-        [leafletOptions]="options"
-        (leafletMapReady)="onMapReady($event)"
-        [leafletLayersControl]="layersControl"
-        [leafletLayersControlOptions]="controlOptions"
-        [leafletMarkerClusterOptions]="markerClusterOptions"
-        [leafletMarkerCluster]="markerClusterData">
-        </div>
+<div style="height: 100%;"
+     leaflet
+     [leafletOptions]="options"
+     [leafletLayers]="layers"
+     [leafletLayersControl]="layersControl">
+     [leafletLayersControlOptions]="layersControlOptions">
+     <div *ngFor="let l of layers" [leafletLayer]="l"></div>
 
-    </div>
-    <div class="col-md-3">
-        <div id="analyse"></div>
-        <app-analyse-multiple [analyses]="analyses"></app-analyse-multiple>
-    </div>
-
-
+     (leafletMapReady)="onMapReady($event)">
 </div>
-
+<leaflet-sidebar-control
+    [map]="map"
+    [options]="sidebarOptions"
+></leaflet-sidebar-control>
