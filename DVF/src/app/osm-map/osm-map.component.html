@@ -1,14 +1,10 @@
-<div style="height: 100%;"
-     leaflet
+<div id='map' [ngClass]="{'reduit': analyses.length != 0}" class="map-container" leaflet 
+    [leafletLayersControl]="layersControl"
      [leafletOptions]="options"
-     [leafletLayers]="layers"
-     [leafletLayersControl]="layersControl">
-     [leafletLayersControlOptions]="layersControlOptions">
-     <div *ngFor="let l of layers" [leafletLayer]="l"></div>
+     (leafletMapReady)="onMapReady($event)"
+></div>
+<div id="analyse"></div>
+    <app-analyse-multiple [analyses]="analyses">
+    </app-analyse-multiple>
 
-     (leafletMapReady)="onMapReady($event)">
-</div>
-<leaflet-sidebar-control
-    [map]="map"
-    [options]="sidebarOptions"
-></leaflet-sidebar-control>
+

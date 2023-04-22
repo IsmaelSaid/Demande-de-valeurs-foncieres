@@ -6,12 +6,16 @@ import { AppComponent } from './app.component';
 import { OsmMapComponent } from './osm-map/osm-map.component';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { NgxSidebarControlModule } from '@runette/ngx-leaflet-sidebar';
+import { AnalyseMultipleComponent } from './analyse-multiple/analyse-multiple.component';
+import { AnalyseComponent } from './analyse/analyse.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    OsmMapComponent
+    OsmMapComponent,
+    AnalyseMultipleComponent,
+    AnalyseComponent
   ],
   imports: [
     BrowserModule,

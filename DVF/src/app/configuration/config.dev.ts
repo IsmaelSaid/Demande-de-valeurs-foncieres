@@ -12,6 +12,7 @@ export const CONFIG = {
     epciDatasetID : "intercommunalites-millesime-france/",
     countTypeLocalEndpoint:"api/count/typelocal/",
     irisDatasetAssets:"/assets/iris-millesime-la-reunion.json",
+    departementDatasetAssets:"/assets/georef-france-departement.json",
     countMutationsEnpoint:"api/count/mutations/",
     apiGlobalVente : "api/global/vente/",
     apiGlobalTypeLocalVenduParCommune : "api/global/type_local_vendu_par_commune/",

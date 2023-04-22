@@ -1,14 +1,14 @@
 /// <reference types='leaflet-sidebar-v2' />
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { Map, Control, DomUtil, ZoomAnimEvent, Layer, MapOptions, tileLayer, latLng, geoJSON, layerGroup, geoJson, Marker, LayerGroup, SidebarOptions, control, LeafletMouseEvent } from 'leaflet';
+import { Map, Control, DomUtil, ZoomAnimEvent, Layer, MapOptions, tileLayer, latLng, geoJSON, layerGroup, geoJson, Marker, LayerGroup, SidebarOptions, control, LeafletMouseEvent, LeafletEvent } from 'leaflet';
 import { CONFIG } from '../configuration/config';
 import { HttpClientODS } from '../../services/http-client-open-data-soft.service';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { NgxSidebarControlModule } from '@runette/ngx-leaflet-sidebar';
-import { NgxSidebarControlComponent } from '@runette/ngx-leaflet-sidebar';
 import 'leaflet.markercluster';
 
 import { PgsqlBack } from 'src/services/pgsql-back.service';
+import { btn } from './btn';
+import { Analyse } from '../models/analyse.model';
 
 @Component({
   selector: 'app-osm-map',
@@ -18,21 +18,18 @@ import { PgsqlBack } from 'src/services/pgsql-back.service';
 })
 
 export class OsmMapComponent implements OnInit, OnDestroy {
-  @ViewChild(NgxSidebarControlComponent, { static: false }) sidebar!: NgxSidebarControlComponent;
+
+  // @ViewChild(NgxSidebarControlComponent, { static: false })
+  // sidebar: NgxSidebarControlComponent = new NgxSidebarControlComponent();
+  
 
   // Configuration des contrôles
-  controlOptions = { collapsed: false, position: 'topleft' }
+  controlOptions = { collapsed: true, position: 'topright' }
   map!: Map;
   zoom!: number;
   layers: Layer[] = []
   layersControl:any
-  
-  public sidebarOptions: SidebarOptions = {
-    position: 'left',
-    autopan: false,
-    closeButton: false,
-    container: 'sidebar',
-  }
+  analyses!: Analyse[]
 
   // Configurations de la caarte
   @Input() options: MapOptions = {
@@ -46,9 +43,6 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     center: latLng(latLng(CONFIG.localisationReunion[0], CONFIG.localisationReunion[1]))
   };
 
-
-  
-  
   // Configuration pour la programmation asynchrone
   @Output() map$: EventEmitter<Map> = new EventEmitter;
   @Output() zoom$: EventEmitter<number> = new EventEmitter;
@@ -57,6 +51,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
 
   constructor(private http: HttpClientODS, private postresql: PgsqlBack) {
     this.selectCommune$.subscribe(this.handlerCommuneClick)
+    this.analyses = postresql.getAnalyseDefaut()
   }
   ngOnInit() {
     this.layersControl = {
@@ -66,6 +61,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     }
     this.initCommunesTiles(this.http);
     this.initEpciTiles(this.http);
+    this.initDepartement(this.http)    
   }
 
   ngOnDestroy() {
@@ -79,7 +75,9 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     this.zoom = map.getZoom();
     this.zoom$.emit(this.zoom);
     console.log("map ready");
+    new btn({ position: 'topright' }).addTo(this.map)
 
+    
   }
 
 
@@ -107,7 +105,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
           let mouseover = { "weight": 1, "opacity": 0.5 };
           e.target.setStyle(mouseover)
         })
-        layerGroupGeometrieCommunes.addLayer(layer.on("click", (e: LeafletMouseEvent) => {
+        layerGroupGeometrieCommunes.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
           // Emission d'un evenement
           this.selectCommune$.emit({
             type: "commune",
@@ -129,10 +127,29 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       this.layersControl.baseLayers['epci']=layerGroupGeometrieEpci
     });
   }
+  private initDepartement(http:HttpClientODS){
+    http.getDepartement().subscribe(response=>{
+      let layerGroupGeometrieDepartement = layerGroup();
+      response.forEach((value) => {
+        let geometrie = value["geo_shape"];
+        layerGroupGeometrieDepartement.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
+      })
+      layerGroupGeometrieDepartement.eachLayer((layer)=>{
+        layer.on('click',()=>{
+          console.log("default");
+          
+          console.log(layer);
+          this.analyses = this.postresql.getAnalyseDefaut()
+
+          
+        })
+      })
+      this.layersControl.baseLayers.departement = layerGroupGeometrieDepartement      
+    })
+  }
 
   handlerCommuneClick(e : {type:string,commune:string}):void{
     console.log(e.type);
     console.log(e.commune);
   }
-
 }
