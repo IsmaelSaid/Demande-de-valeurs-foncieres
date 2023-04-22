@@ -3,7 +3,7 @@ const Pool = require("pg").Pool;
 const getPool = () => {
   const connectionString = process.env.DATABASE_URL
     ? process.env.DATABASE_URL
-    : "postgres://ismael:sagrandmere@localhost:5432/dvf";
+    : "postgres://postgres:sagrandmere@localhost:5432/dvf";
 
   console.info(`Utilisation de la base de données : ${connectionString}\n`);
   return new Pool({
