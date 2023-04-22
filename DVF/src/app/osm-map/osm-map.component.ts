@@ -1,5 +1,5 @@
 /// <reference types='leaflet-sidebar-v2' />
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Map, Control, DomUtil, ZoomAnimEvent, Layer, MapOptions, tileLayer, latLng, geoJSON, layerGroup, geoJson, Marker, LayerGroup, SidebarOptions, control, LeafletMouseEvent, LeafletEvent } from 'leaflet';
 import { CONFIG } from '../configuration/config';
 import { HttpClientODS } from '../../services/http-client-open-data-soft.service';
@@ -49,9 +49,9 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   @Output() selectCommune$: EventEmitter<{ type: string, commune: string }> = new EventEmitter;
 
 
-  constructor(private http: HttpClientODS, private postresql: PgsqlBack) {
-    this.selectCommune$.subscribe(this.handlerCommuneClick)
-    this.analyses = postresql.getAnalyseDefaut()
+  constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector:ChangeDetectorRef) {
+    this.selectCommune$.subscribe(this.changeDetector.detectChanges)
+    this.analyses = []
   }
   ngOnInit() {
     this.layersControl = {
@@ -107,10 +107,11 @@ export class OsmMapComponent implements OnInit, OnDestroy {
         })
         layerGroupGeometrieCommunes.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
           // Emission d'un evenement
-          this.selectCommune$.emit({
-            type: "commune",
-            commune: value['com_code'][0]
+          this.analyses.forEach((analyse)=>{
+            analyse.destroyView()
           })
+          this.analyses = this.postresql.getAnalyseParCommune(value['com_code'][0])
+          this.changeDetector.detectChanges()
         }));
       })
       this.layersControl.baseLayers['communes']=layerGroupGeometrieCommunes
@@ -138,18 +139,27 @@ export class OsmMapComponent implements OnInit, OnDestroy {
         layer.on('click',()=>{
           console.log("default");
           
-          console.log(layer);
+          console.log("departement");
+          this.analyses.forEach((analyse)=>{
+            analyse.destroyView()
+          })
           this.analyses = this.postresql.getAnalyseDefaut()
+          this.changeDetector.detectChanges()
 
           
         })
       })
-      this.layersControl.baseLayers.departement = layerGroupGeometrieDepartement      
+      this.layersControl.baseLayers.departement = layerGroupGeometrieDepartement
+      this.changeDetector.detectChanges() 
     })
   }
 
   handlerCommuneClick(e : {type:string,commune:string}):void{
-    console.log(e.type);
-    console.log(e.commune);
+    console.log("commune");
+    // this.analyses.forEach((analyse)=>{
+    //   analyse.destroyView()
+    // })
+    this.analyses = this.postresql.getAnalyseParCommune(e.commune)
+    this.changeDetector.detectChanges();
   }
 }
