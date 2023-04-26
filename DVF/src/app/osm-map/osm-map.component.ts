@@ -74,7 +74,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     this.map$.emit(map);
     this.zoom = map.getZoom();
     this.zoom$.emit(this.zoom);
-    console.log("map ready");
+    console.info("map ready");
     new btn({ position: 'topright' }).addTo(this.map)
 
     
@@ -87,7 +87,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   }
 
   private initCommunesTiles(http: HttpClientODS) {
-    console.log("Chargement communes");
+    console.info("Chargement communes");
     http.getCommunes().subscribe(response => {
       let layerGroupGeometrieCommunes = layerGroup();
       response.forEach((value) => {
@@ -119,11 +119,26 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   }
   private initEpciTiles(http: HttpClientODS) {
     http.getEPCI().subscribe(response => {
-      console.log('chargement epci')
+      console.info('chargement epci')
       let layerGroupGeometrieEpci = layerGroup();
+      let epci_code:string;
       response.forEach((value) => {
+        console.info(value)
         let geometrie = value["geo_shape"];
+        epci_code = value["epci_code"][0];
         layerGroupGeometrieEpci.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
+      })
+      layerGroupGeometrieEpci.eachLayer((layer)=>{
+        layer.on('click',()=>{
+          console.info("Clique EPCI");
+          // this.analyses.forEach((analyse)=>{
+          //   analyse.destroyView()
+          // })
+          //this.analyses = this.postresql.getAnalyseDefaut()
+          //this.changeDetector.detectChanges()
+          //this.postresql.epci_mapper(epci)
+          console.info(epci_code);        
+        })
       })
       this.layersControl.baseLayers['epci']=layerGroupGeometrieEpci
     });
@@ -137,9 +152,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       })
       layerGroupGeometrieDepartement.eachLayer((layer)=>{
         layer.on('click',()=>{
-          console.log("default");
-          
-          console.log("departement");
+          console.info("Clique département");
           this.analyses.forEach((analyse)=>{
             analyse.destroyView()
           })
@@ -155,11 +168,8 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   }
 
   handlerCommuneClick(e : {type:string,commune:string}):void{
-    console.log("commune");
-    // this.analyses.forEach((analyse)=>{
-    //   analyse.destroyView()
-    // })
     this.analyses = this.postresql.getAnalyseParCommune(e.commune)
     this.changeDetector.detectChanges();
   }
+
 }
