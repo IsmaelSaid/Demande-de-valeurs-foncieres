@@ -3,7 +3,7 @@ const Pool = require("pg").Pool;
 const getPool = () => {
   const connectionString = process.env.DATABASE_URL
     ? process.env.DATABASE_URL
-    : "postgres://ismael:sagrandmere@localhost:5432/dvf";
+    : "postgres://postgres:sagrandmere@localhost:5432/dvf";
 
   console.info(`Utilisation de la base de données : ${connectionString}\n`);
   return new Pool({
@@ -61,7 +61,7 @@ const natureMutationGlobal = (request, response) => {
  * @throws {Error} - Lance une erreur si la requête SQL échoue.
  */
 
-const venteAnneeGlobal = (request, response) => {
+const vente = (request, response) => {
   console.info("venteAnneeGlobal");
   pool.query(
     `select 
@@ -160,7 +160,7 @@ group by l_codinsee`,
   );
 };
 
-const evolutionPrixParTypeLocal = (request, response) => {
+const prixMedian = (request, response) => {
   console.info("Evolution prix par type de local");
   pool.query(
     `SELECT 
@@ -225,10 +225,10 @@ AND nblocapt > 0`,
 };
 
 module.exports = {
+  vente,
+  prixMedian,
   natureMutationGlobal,
   typeLocalGlobal,
-  venteAnneeGlobal,
   typeLocalVenduParCommune,
-  evolutionPrixParTypeLocal,
   prixMedianMaisonAppartement
 };

@@ -11,13 +11,5 @@ export const CONFIG = {
     communesDatasetID: "communes-millesime-france/",
     epciDatasetID : "intercommunalites-millesime-france/",
     irisDatasetAssets:"/assets/iris-millesime-la-reunion.json",
-    countMutationsEnpoint:"api/count/mutations/",
-    countTypeLocalEndpoint:"api/count/typelocal/",
-    apiGlobalVente : "api/global/vente/",
-    apiGlobalTypeLocalVenduParCommune : "api/global/type_local_vendu_par_commune/",
-    apiGlobalEvolutionPrixParTypeLocal :"api/global/evolution_prix_par_type_local/",
-    apiGlobalprixMedianMaisonAppartement:"api/global/prix_median_maison_appartement/",
-    apiCommunetypeLocalVenduParCommuneParAnnee:"api/commune/type_local_vendu_par_commune_par_annee/",
-    apiCommuneEvolutionPrixParTypeLocal:"api/commune/evolution_prix_par_type_local/",
-    apiCommuneMedianMaisonAppartement:"api/commune/prix_median_maison_appartement/"
+    departementDatasetAssets:"/assets/georef-france-departement.json"
  };

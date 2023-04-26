@@ -13,7 +13,7 @@ export class HttpClientODS {
   private communeDatasetID = CONFIG.communesDatasetID;
   private epciDatasetID = CONFIG.epciDatasetID;
   private irisDatasetID = CONFIG.irisDatasetAssets;
-
+  private departementDatasetID = CONFIG.departementDatasetAssets;
   constructor(private http: HttpClient) { }
 
   createUrl(datasetID: string): string {
@@ -33,6 +33,10 @@ export class HttpClientODS {
   getIRIS() {
     return this.http.get<[]>(this.irisDatasetID);
 
+  }
+
+  getDepartement(){
+    return this.http.get<[]>(this.departementDatasetID)
   }
 
   public getOpenDataSoftUrl(){

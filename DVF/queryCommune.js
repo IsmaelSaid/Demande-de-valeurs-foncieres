@@ -3,7 +3,7 @@ const Pool = require("pg").Pool;
 const getPool = () => {
   const connectionString = process.env.DATABASE_URL
     ? process.env.DATABASE_URL
-    : "postgres://ismael:sagrandmere@localhost:5432/dvf";
+    : "postgres://postgres:sagrandmere@localhost:5432/dvf";
 
   console.info(`Utilisation de la base de données : ${connectionString}\n`);
   return new Pool({
@@ -13,14 +13,52 @@ const getPool = () => {
 
 const pool = getPool();
 
+const vente = (request, response) => {
+  const codeinsee = request.params.codeinsee;
+  console.info("Type local vendu par commune et par année : " + codeinsee);
+  pool.query(
+    `SELECT 
+    anneemut,
+    sum(nblocapt) as nb_vendu,
+    concat('','Appartement') as Type
+    FROM dvf.mutation
+    where libnatmut = 'Vente'
+    AND 
+    $1 = ANY(l_codinsee)
+    and 
+    nbcomm = 1
+    AND anneemut != 2022
+    group by anneemut
+UNION
+SELECT 
+    anneemut,
+    sum(nblocmai) as nb_vendu,
+    concat('','Maison') as Type
+    FROM dvf.mutation
+    where libnatmut = 'Vente'
+    AND 
+    $1 = ANY(l_codinsee)
+    and 
+    nbcomm = 1
+    AND anneemut != 2022
+    group by anneemut`,
+    [codeinsee],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
 /**
  * Récupère le nombre de mutations pour chaque nature de mutation (vente, donation, etc.)
  * pour une commune spécifique identifiée par son code INSEE.
- *
- * @param {Object} request - Requête HTTP reçue par le serveur
- * @param {Object} response - Réponse HTTP à renvoyer au client
- * @returns {void}
- */
+*
+* @param {Object} request - Requête HTTP reçue par le serveur
+* @param {Object} response - Réponse HTTP à renvoyer au client
+* @returns {void}
+*/
 const natureMutationCommune = (request, response) => {
   const codeinsee = request.params.codeinsee;
   console.info("natureMutationCommune : " + codeinsee);
@@ -132,46 +170,8 @@ const venteAnneeCommune = (request, response) => {
   );
 };
 
-const typeLocalVenduParCommuneParAnnee = (request, response) => {
-  const codeinsee = request.params.codeinsee;
-  console.info("Type local vendu par commune et par année : " + codeinsee);
-  pool.query(
-    `SELECT 
-    anneemut,
-    sum(nblocapt) as nb_vendu,
-    concat('','Appartement') as Type
-    FROM dvf.mutation
-    where libnatmut = 'Vente'
-    AND 
-    $1 = ANY(l_codinsee)
-    and 
-    nbcomm = 1
-    AND anneemut != 2022
-    group by anneemut
-UNION
-SELECT 
-    anneemut,
-    sum(nblocmai) as nb_vendu,
-    concat('','Maison') as Type
-    FROM dvf.mutation
-    where libnatmut = 'Vente'
-    AND 
-    $1 = ANY(l_codinsee)
-    and 
-    nbcomm = 1
-    AND anneemut != 2022
-    group by anneemut`,
-    [codeinsee],
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      response.status(200).json(results.rows);
-    }
-  );
-};
 
-const evolutionPrixParTypeLocalCommune = (request, response) => {
+const prixMedian = (request, response) => {
   const codeinsee = request.params.codeinsee;
   console.info("Type local vendu par commune et par année : " + codeinsee);
   pool.query(
@@ -244,10 +244,10 @@ const prixMedianMaisonAppartementCommune = (request, response) => {
 };
 
 module.exports = {
+  vente,
+  prixMedian,
   natureMutationCommune,
   typeLocalCommune,
   venteAnneeCommune,
-  typeLocalVenduParCommuneParAnnee,
-  evolutionPrixParTypeLocalCommune,
   prixMedianMaisonAppartementCommune
 };
