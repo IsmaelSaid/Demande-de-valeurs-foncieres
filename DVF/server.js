@@ -24,8 +24,8 @@ app.get('/api/global/prix_median/',db_global.prixMedian)
 
 // -------------------------------------------------------------------------------------------------------------------------
 
-app.get('/api/intercommunale/type_local_vendu_par_epci/:codeinseeepci',db_intercommunale.typeLocalVenduParEpciParAnnee)
-app.get('/api/intercommunale/evolution_prix_par_type_local_epci/:codeinseeepci',db_intercommunale.evolutionPrixParTypeLocalEpci)
+app.get('/api/intercommunale/vente/:codeinseeepci',db_intercommunale.vente)
+app.get('/api/intercommunale/prix_median/:codeinseeepci',db_intercommunale.prixMedian)
 
 // -------------------------------------------------------------------------------------------------------------------------
 

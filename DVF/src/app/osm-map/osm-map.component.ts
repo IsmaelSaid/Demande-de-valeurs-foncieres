@@ -121,24 +121,34 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     http.getEPCI().subscribe(response => {
       console.info('chargement epci')
       let layerGroupGeometrieEpci = layerGroup();
-      let epci_code:string;
       response.forEach((value) => {
+        let epci_code:string;
         console.info(value)
         let geometrie = value["geo_shape"];
         epci_code = value["epci_code"][0];
-        layerGroupGeometrieEpci.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
-      })
-      layerGroupGeometrieEpci.eachLayer((layer)=>{
-        layer.on('click',()=>{
-          console.info("Clique EPCI");
-          // this.analyses.forEach((analyse)=>{
-          //   analyse.destroyView()
-          // })
-          //this.analyses = this.postresql.getAnalyseDefaut()
-          //this.changeDetector.detectChanges()
-          //this.postresql.epci_mapper(epci)
-          console.info(epci_code);        
+        let myStyle = {
+          "weight": 1,
+          "opacity": 0.5
+        };
+        let layer = geoJSON(JSON.parse(JSON.stringify(geometrie))).setStyle(myStyle).on('mouseover', (e) => {
+          let mouseover = { "weight": 3, "opacity": 0.9 };
+          e.target.setStyle(mouseover)
         })
+
+        layer.on('mouseout', (e) => {
+          let mouseover = { "weight": 1, "opacity": 0.5 };
+          e.target.setStyle(mouseover)
+        })
+
+        layerGroupGeometrieEpci.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
+          // Emission d'un evenement
+          this.analyses.forEach((analyse)=>{
+            analyse.destroyView()
+          })
+          this.analyses = this.postresql.getAnalyseParEpci(epci_code)
+          this.changeDetector.detectChanges()
+        }));
+        // layerGroupGeometrieEpci.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
       })
       this.layersControl.baseLayers['epci']=layerGroupGeometrieEpci
     });

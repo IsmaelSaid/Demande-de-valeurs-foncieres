@@ -72,6 +72,27 @@ export class PgsqlBack {
       ]
     }
 
+    public getAnalyseParEpci(code_insee:string):Analyse[] {
+      return [
+        new AnalyseLinePlot("an2",code_insee,
+        this.url + "api/intercommunale/prix_median/" + code_insee,
+        "anneemut",
+        "ordinal",
+        "prix_m2_median",
+        "quantitative",
+        "type",
+        "nominal"),
+        new AnalyseBar("an3",code_insee,
+        this.url + "api/intercommunale/vente/" + code_insee,
+        "anneemut",
+        "ordinal",
+        "nb_vendu",
+        "quantitative",
+        "type",
+        "nominal")
+      ]
+    }
+
     public epci_mapper(epci : string) :string[] {
       let communes : string[] = []
       switch (epci){

@@ -49,7 +49,7 @@ function mapper_epci(codeinseeepci){
   return communes
 }
 
-const evolutionPrixParTypeLocalEpci = (request, response) => {
+const prixMedian = (request, response) => {
     const codeinseeepci = request.params.codeinseeepci;
     console.info("Evolution prix epci: " + mapper_epci(codeinseeepci));
     pool.query(
@@ -88,7 +88,7 @@ const evolutionPrixParTypeLocalEpci = (request, response) => {
     );
   };
 
-  const typeLocalVenduParEpciParAnnee = (request, response) => {
+  const vente = (request, response) => {
     const codeinseeepci = request.params.codeinseeepci;
     console.info("Type local vendu par epci : " + mapper_epci(codeinseeepci));
     pool.query(
@@ -123,6 +123,6 @@ const evolutionPrixParTypeLocalEpci = (request, response) => {
     );
   };
 module.exports = {
-    typeLocalVenduParEpciParAnnee,
-    evolutionPrixParTypeLocalEpci 
+    prixMedian,
+    vente 
 };
