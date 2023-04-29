@@ -18,14 +18,29 @@ const prixMedian = (request, response) => {
   const formeiris = JSON.stringify(request.body)
   console.info("prixMedian IRIS") 
   pool.query(
-    `SELECT idmutation,valeurfonc,datemut,sbati
+    `
+    SELECT 
+    anneemut,
+    sum(nblocapt) as nb_vendu,
+    concat('','Appartement') as Type
     FROM dvf.mutation
-    WHERE geomlocmut IS NOT NULL
-    AND libnatmut = 'Vente'
-    AND nblocmai > 0
+    where libnatmut = 'Vente'
+    AND nbcomm = 1
     AND anneemut != 2022
-    AND nblocapt = 0
-    and ST_CONTAINS(ST_TRANSFORM(ST_GeomFromGeoJSON($1),4326),ST_TRANSFORM(geomlocmut,4326))`,
+    AND ST_CONTAINS(ST_TRANSFORM(ST_GeomFromGeoJSON($1),4326),ST_TRANSFORM(geomlocmut,4326))
+    group by anneemut
+UNION
+SELECT 
+    anneemut,
+    sum(nblocmai) as nb_vendu,
+    concat('','Maison') as Type
+    FROM dvf.mutation
+    where libnatmut = 'Vente'
+    AND nbcomm = 1
+    AND anneemut != 2022
+    AND ST_CONTAINS(ST_TRANSFORM(ST_GeomFromGeoJSON($1),4326),ST_TRANSFORM(geomlocmut,4326))
+    group by anneemut
+    `,
     [formeiris],
     (error, results) => {
       if (error) {

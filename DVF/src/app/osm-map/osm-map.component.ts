@@ -9,6 +9,7 @@ import 'leaflet.markercluster';
 import { PgsqlBack } from 'src/services/pgsql-back.service';
 import { btn } from './btn';
 import { Analyse } from '../models/analyse.model';
+import { AnalyseBar } from '../models/analyse-bar-plot.model';
 
 @Component({
   selector: 'app-osm-map',
@@ -61,7 +62,8 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     }
     this.initCommunesTiles(this.http);
     this.initEpciTiles(this.http);
-    this.initDepartement(this.http)    
+    this.initDepartement(this.http);
+    this.initIRIS(this.http);    
   }
 
   ngOnDestroy() {
@@ -94,17 +96,20 @@ export class OsmMapComponent implements OnInit, OnDestroy {
         let geometrie = value["geo_shape"];
         let myStyle = {
           "weight": 1,
-          "opacity": 0.5
+          "opacity": 0.3,
+          "fillOpacity": 0
+
         };
         let layer = geoJSON(JSON.parse(JSON.stringify(geometrie))).setStyle(myStyle).on('mouseover', (e) => {
-          let mouseover = { "weight": 3, "opacity": 0.9 };
+          let mouseover = { "weight": 2, "opacity": 0.9,"fillOpacity":0.3};
           e.target.setStyle(mouseover)
         })
 
         layer.on('mouseout', (e) => {
-          let mouseover = { "weight": 1, "opacity": 0.5 };
+          let mouseover = { "weight": 1, "opacity": 0.3,"fillOpacity": 0};
           e.target.setStyle(mouseover)
         })
+
         layerGroupGeometrieCommunes.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
           // Emission d'un evenement
           this.analyses.forEach((analyse)=>{
@@ -123,20 +128,21 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       let layerGroupGeometrieEpci = layerGroup();
       response.forEach((value) => {
         let epci_code:string;
-        console.info(value)
         let geometrie = value["geo_shape"];
         epci_code = value["epci_code"][0];
         let myStyle = {
           "weight": 1,
-          "opacity": 0.5
+          "opacity": 0.3,
+          "fillOpacity": 0
+
         };
         let layer = geoJSON(JSON.parse(JSON.stringify(geometrie))).setStyle(myStyle).on('mouseover', (e) => {
-          let mouseover = { "weight": 3, "opacity": 0.9 };
+          let mouseover = { "weight": 2, "opacity": 0.9,"fillOpacity":0.3};
           e.target.setStyle(mouseover)
         })
 
         layer.on('mouseout', (e) => {
-          let mouseover = { "weight": 1, "opacity": 0.5 };
+          let mouseover = { "weight": 1, "opacity": 0.3,"fillOpacity": 0};
           e.target.setStyle(mouseover)
         })
 
@@ -175,6 +181,54 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       this.layersControl.baseLayers.departement = layerGroupGeometrieDepartement
       this.changeDetector.detectChanges() 
     })
+  }
+
+  private initIRIS(http: HttpClientODS) {
+    http.getIRIS().subscribe(response => {
+      console.info('chargement IRIS')
+      let layerGroupGeometrieIRIS = layerGroup();
+      response.forEach((value) => {
+        let epci_code:string;
+        let geometrie = value["geo_shape"];
+        epci_code = value["epci_code"][0];
+        let myStyle = {
+          "weight": 1,
+          "opacity": 0.3,
+          "fillOpacity": 0
+
+        };
+        let myjson = JSON.parse(JSON.stringify(geometrie))
+        myjson["properties"] = {
+          "name": "Alabama",
+          "density": 94.65
+      }
+        let layer = geoJSON(myjson).setStyle(myStyle).on('mouseover', (e) => {
+          let mouseover = { "weight": 2, "opacity": 0.9,"fillOpacity":0.3};
+          e.target.setStyle(mouseover)
+        })
+        layer.on('mouseout', (e) => {
+          let mouseover = { "weight": 1, "opacity": 0.3,"fillOpacity": 0};
+          e.target.setStyle(mouseover)
+        })
+        layerGroupGeometrieIRIS.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
+          // Emission d'un evenement
+          this.postresql.getanalyseIRIS(value['geo_shape']['geometry']).subscribe(response => {
+              this.analyses.forEach((analyse)=>{
+                analyse.destroyView()
+              })
+              this.analyses = [new AnalyseBar("an3",{'values':response},"test",
+              "anneemut",
+              "ordinal",
+              "nb_vendu",
+              "quantitative",
+              "type",
+              "nominal")]
+              this.changeDetector.detectChanges()
+            })
+        }));
+      })
+      this.layersControl.baseLayers['IRIS']=layerGroupGeometrieIRIS
+    });
   }
 
   handlerCommuneClick(e : {type:string,commune:string}):void{

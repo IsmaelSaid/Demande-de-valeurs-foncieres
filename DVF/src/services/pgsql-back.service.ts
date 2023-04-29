@@ -1,5 +1,5 @@
 import { Injectable, isDevMode } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { CONFIG } from 'src/app/configuration/config';
 import { AnalyseLinePlot } from 'src/app/models/analyse-line-plot.model';
 import { AnalyseBar } from 'src/app/models/analyse-bar-plot.model';
@@ -32,22 +32,13 @@ export class PgsqlBack {
       "quantitative",
       "type",
       "nominal"),
-      new AnalyseBar("annal2","Reunion",
-        this.url + "api/global/vente/",
+      new AnalyseBar("annal2", {"url":this.url + "api/global/vente/"},"Reunion",
         "anneemut",
         "ordinal",
         "nombre",
         "quantitative",
         "type",
         "nominal")
-      // new AnalyseBar("annal4","Reunion",
-      //   this.url + CONFIG.routeGlobalTypeLocalVendu,
-      //   "l_codinsee",
-      //   "ordinal",
-      //   "nb_vendu",
-      //   "quantitative",
-      //   "type",
-      //   "nominal"),
       ]
     }
 
@@ -61,8 +52,7 @@ export class PgsqlBack {
         "quantitative",
         "type",
         "nominal"),
-        new AnalyseBar("an3",code_insee,
-        this.url + "api/commune/vente/" + code_insee,
+        new AnalyseBar("an3",{'url':this.url + "api/commune/vente/" + code_insee},code_insee,
         "anneemut",
         "ordinal",
         "nb_vendu",
@@ -82,8 +72,7 @@ export class PgsqlBack {
         "quantitative",
         "type",
         "nominal"),
-        new AnalyseBar("an3",code_insee,
-        this.url + "api/intercommunale/vente/" + code_insee,
+        new AnalyseBar("an3",{'url':this.url + "api/intercommunale/vente/" + code_insee},code_insee,
         "anneemut",
         "ordinal",
         "nb_vendu",
@@ -92,7 +81,10 @@ export class PgsqlBack {
         "nominal")
       ]
     }
-
+    public getanalyseIRIS(geometrieIRIS:string){
+      console.info("getanalyseIRIS");
+      return this.http.post(this.url + "api/iris/vente/",geometrieIRIS)
+    }
     public epci_mapper(epci : string) :string[] {
       let communes : string[] = []
       switch (epci){
