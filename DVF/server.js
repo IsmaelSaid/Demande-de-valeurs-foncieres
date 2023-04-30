@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const db_local = require('./queryCommune')
 const db_global = require('./queryGlobal')
+const db_iris = require('./queryIRIS')
 const db_intercommunale = require ('./queryIntercommunale')
 var bodyParser = require('body-parser')
 
@@ -32,8 +33,8 @@ app.get('/api/intercommunale/prix_median/:codeinseeepci',db_intercommunale.prixM
 app.get('/api/commune/vente/:codeinsee',db_local.vente)
 app.get('/api/commune/prix_median/:codeinsee',db_local.prixMedian)
 
+//--------------------------------------------------------------------------------------------------------------------------
 
-
-
+app.post('/api/iris/vente/',db_iris.prixMedian)
 
 app.listen(process.env.PORT || 8080);

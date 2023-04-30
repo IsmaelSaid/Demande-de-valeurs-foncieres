@@ -8,6 +8,7 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { NgxSidebarControlModule } from '@runette/ngx-leaflet-sidebar';
 import { AnalyseMultipleComponent } from './analyse-multiple/analyse-multiple.component';
 import { AnalyseComponent } from './analyse/analyse.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -21,7 +22,9 @@ import { AnalyseComponent } from './analyse/analyse.component';
     BrowserModule,
     HttpClientModule,
     LeafletModule,
-    NgxSidebarControlModule
+    NgxSidebarControlModule,
+    NgbModule
+    
   ],
   providers: [],
   bootstrap: [AppComponent]
