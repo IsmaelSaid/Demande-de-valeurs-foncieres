@@ -15,8 +15,9 @@ const pool = getPool();
 
 
 const prixMedian = (request, response) => {
-  const formeiris = JSON.stringify(request.body)
-  console.info("prixMedian IRIS") 
+  const formeiris = request.body
+
+  console.info(request.body) 
   pool.query(
     `
     SELECT 

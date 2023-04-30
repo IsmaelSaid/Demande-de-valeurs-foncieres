@@ -31,7 +31,7 @@ export class HttpClientODS {
   }
 
   getIRIS() {
-    return this.http.get<[]>(this.irisDatasetID);
+    return this.http.get<[]>("/assets/custom_IRIS.json");
 
   }
 

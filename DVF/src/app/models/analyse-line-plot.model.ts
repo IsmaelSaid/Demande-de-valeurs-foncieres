@@ -2,7 +2,7 @@ import { TopLevelSpec, compile } from 'vega-lite';
 import { StandardType } from "vega-lite/build/src/type";
 import { Analyse } from "./analyse.model";
 export class AnalyseLinePlot extends Analyse {
-  constructor(nomAnalyse: string,titre : string, public url: string, xField: string, xType: string, yField: string, yType: string, colorField: string, colorType: string) {
+  constructor(nomAnalyse: string,titre : string, public data:{'url':string} | {'values':Object}, xField: string, xType: string, yField: string, yType: string, colorField: string, colorType: string) {
     super(nomAnalyse,titre)
     this.xField = xField;
     this.xType = xType;
@@ -16,7 +16,7 @@ export class AnalyseLinePlot extends Analyse {
     return {
       $schema: this.schema,
       title:this.titre,
-      data: { "url": this.url },
+      data: this.data,
       "layer": [
         {
           "mark": { "type": "line", point: true },

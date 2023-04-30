@@ -5,7 +5,6 @@ import { CONFIG } from '../configuration/config';
 import { HttpClientODS } from '../../services/http-client-open-data-soft.service';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import 'leaflet.markercluster';
-
 import { PgsqlBack } from 'src/services/pgsql-back.service';
 import { btn } from './btn';
 import { Analyse } from '../models/analyse.model';
@@ -19,17 +18,22 @@ import { AnalyseBar } from '../models/analyse-bar-plot.model';
 })
 
 export class OsmMapComponent implements OnInit, OnDestroy {
+  controlOptions = { collapsed: false, position: 'topright' }
+  defaultStyle = {
+    "weight": 1,
+    "opacity": 0.3,
+    "fillOpacity": 0
+  };
 
-  // @ViewChild(NgxSidebarControlComponent, { static: false })
-  // sidebar: NgxSidebarControlComponent = new NgxSidebarControlComponent();
-  
-
-  // Configuration des contrôles
-  controlOptions = { collapsed: true, position: 'topright' }
+  hoverStyle = {
+    "weight": 2,
+    "opacity": 0.9,
+    "fillOpacity": 0.3
+  };
   map!: Map;
   zoom!: number;
   layers: Layer[] = []
-  layersControl:any
+  layersControl: any
   analyses!: Analyse[]
 
   // Configurations de la caarte
@@ -50,20 +54,16 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   @Output() selectCommune$: EventEmitter<{ type: string, commune: string }> = new EventEmitter;
 
 
-  constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector:ChangeDetectorRef) {
+  constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector: ChangeDetectorRef) {
     this.selectCommune$.subscribe(this.changeDetector.detectChanges)
     this.analyses = []
   }
   ngOnInit() {
-    this.layersControl = {
-      baseLayers: {
-      },
-      overlays: {}
-    }
+    this.layersControl = { baseLayers: {}, overlays: {} }
     this.initCommunesTiles(this.http);
     this.initEpciTiles(this.http);
     this.initDepartement(this.http);
-    this.initIRIS(this.http);    
+    this.initIRIS(this.http);
   }
 
   ngOnDestroy() {
@@ -77,9 +77,9 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     this.zoom = map.getZoom();
     this.zoom$.emit(this.zoom);
     console.info("map ready");
-    new btn({ position: 'topright' }).addTo(this.map)
+    // new btn({ position: 'topright' }).addTo(this.map)
 
-    
+
   }
 
 
@@ -89,151 +89,136 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   }
 
   private initCommunesTiles(http: HttpClientODS) {
-    console.info("Chargement communes");
+    let layerGroupGeometrieCommunes = layerGroup();
     http.getCommunes().subscribe(response => {
-      let layerGroupGeometrieCommunes = layerGroup();
+      console.info('chargement communes')
       response.forEach((value) => {
-        let geometrie = value["geo_shape"];
-        let myStyle = {
-          "weight": 1,
-          "opacity": 0.3,
-          "fillOpacity": 0
-
-        };
-        let layer = geoJSON(JSON.parse(JSON.stringify(geometrie))).setStyle(myStyle).on('mouseover', (e) => {
-          let mouseover = { "weight": 2, "opacity": 0.9,"fillOpacity":0.3};
-          e.target.setStyle(mouseover)
-        })
-
-        layer.on('mouseout', (e) => {
-          let mouseover = { "weight": 1, "opacity": 0.3,"fillOpacity": 0};
-          e.target.setStyle(mouseover)
-        })
-
-        layerGroupGeometrieCommunes.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
-          // Emission d'un evenement
-          this.analyses.forEach((analyse)=>{
-            analyse.destroyView()
+        // console.info(value)
+        let communeCode = value["com_code"][0];
+        this.postresql.getVenteCommune(communeCode).subscribe((dataVente) => {
+          this.postresql.getPrixMedianCommune(communeCode).subscribe((dataPrixMedian) => {
+            let nomCommune = value["com_name"][0];
+            let geometrie = value["geo_shape"];
+            let myJson = JSON.parse(JSON.stringify(geometrie))
+            let myGeoJson;
+            myJson["properties"]["vente"] = dataVente;
+            myJson["properties"]["prix_median"] = dataPrixMedian;
+            myJson["properties"]["nom"] = nomCommune;
+            myGeoJson = geoJSON(myJson)
+            myGeoJson.setStyle(this.defaultStyle)
+            myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
+            myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
+            myGeoJson.on("click", (_e: LeafletMouseEvent) => {
+              this.analyses.forEach((analyse) => { analyse.destroyView() });
+              this.analyses = this.postresql.getAnalyseParCommune(
+                {
+                  "vente": _e.sourceTarget.feature.properties.vente,
+                  "prix_median": _e.sourceTarget.feature.properties.prix_median
+                },
+                _e.sourceTarget.feature.properties.nom)
+              this.changeDetector.detectChanges()
+            })
+            layerGroupGeometrieCommunes.addLayer(myGeoJson);
           })
-          this.analyses = this.postresql.getAnalyseParCommune(value['com_code'][0])
-          this.changeDetector.detectChanges()
-        }));
+        })
       })
-      this.layersControl.baseLayers['communes']=layerGroupGeometrieCommunes
+      this.layersControl.baseLayers['communes'] = layerGroupGeometrieCommunes
     });
+
   }
   private initEpciTiles(http: HttpClientODS) {
+    let layerGroupGeometrieEpci = layerGroup();
     http.getEPCI().subscribe(response => {
       console.info('chargement epci')
-      let layerGroupGeometrieEpci = layerGroup();
       response.forEach((value) => {
-        let epci_code:string;
-        let geometrie = value["geo_shape"];
-        epci_code = value["epci_code"][0];
-        let myStyle = {
-          "weight": 1,
-          "opacity": 0.3,
-          "fillOpacity": 0
-
-        };
-        let layer = geoJSON(JSON.parse(JSON.stringify(geometrie))).setStyle(myStyle).on('mouseover', (e) => {
-          let mouseover = { "weight": 2, "opacity": 0.9,"fillOpacity":0.3};
-          e.target.setStyle(mouseover)
-        })
-
-        layer.on('mouseout', (e) => {
-          let mouseover = { "weight": 1, "opacity": 0.3,"fillOpacity": 0};
-          e.target.setStyle(mouseover)
-        })
-
-        layerGroupGeometrieEpci.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
-          // Emission d'un evenement
-          this.analyses.forEach((analyse)=>{
-            analyse.destroyView()
+        let epciCode = value["epci_code"][0];
+        this.postresql.getVenteEpci(epciCode).subscribe((dataVente) => {
+          this.postresql.getPrixMedianEpci(epciCode).subscribe((dataPrixMedian) => {
+            let epciName = value["epci_name"]
+            let geometrie = value["geo_shape"];
+            let myJson = JSON.parse(JSON.stringify(geometrie))
+            let myGeoJson;
+            myJson["properties"]["vente"] = dataVente;
+            myJson["properties"]["prix_median"] = dataPrixMedian;
+            myJson["properties"]["nom"] = epciName;
+            myGeoJson = geoJSON(myJson)
+            myGeoJson.setStyle(this.defaultStyle)
+            myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
+            myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
+            myGeoJson.on("click", (_e: LeafletMouseEvent) => {
+              this.analyses.forEach((analyse) => { analyse.destroyView() });
+              this.analyses = this.postresql.getAnalyseParEpci(
+                {
+                  "vente": _e.sourceTarget.feature.properties.vente,
+                  "prix_median": _e.sourceTarget.feature.properties.prix_median
+                },
+                _e.sourceTarget.feature.properties.nom)
+              this.changeDetector.detectChanges()
+            })
+            layerGroupGeometrieEpci.addLayer(myGeoJson);
           })
-          this.analyses = this.postresql.getAnalyseParEpci(epci_code)
-          this.changeDetector.detectChanges()
-        }));
-        // layerGroupGeometrieEpci.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
+        })
       })
-      this.layersControl.baseLayers['epci']=layerGroupGeometrieEpci
+      this.layersControl.baseLayers['epci'] = layerGroupGeometrieEpci
     });
   }
-  private initDepartement(http:HttpClientODS){
-    http.getDepartement().subscribe(response=>{
-      let layerGroupGeometrieDepartement = layerGroup();
+  private initDepartement(http: HttpClientODS) {
+    let layerGroupGeometrieDepartement = layerGroup();
+    http.getDepartement().subscribe(response => {
       response.forEach((value) => {
-        let geometrie = value["geo_shape"];
-        layerGroupGeometrieDepartement.addLayer(geoJSON(JSON.parse(JSON.stringify(geometrie))));
-      })
-      layerGroupGeometrieDepartement.eachLayer((layer)=>{
-        layer.on('click',()=>{
-          console.info("Clique département");
-          this.analyses.forEach((analyse)=>{
-            analyse.destroyView()
-          })
-          this.analyses = this.postresql.getAnalyseDefaut()
-          this.changeDetector.detectChanges()
+        this.postresql.getVenteDepartement().subscribe((dataVente) => {
+          this.postresql.getPrixMedianDepartement().subscribe((dataPrixMedian) => {
+            let geometrie = value["geo_shape"];
+            let myJson = JSON.parse(JSON.stringify(geometrie))
+            let myGeoJson;
+            myJson["properties"]["vente"] = dataVente;
+            myJson["properties"]["prix_median"] = dataPrixMedian;
+            myJson["properties"]["nom"] = "La Réunion";
+            myGeoJson = geoJSON(myJson);
+            myGeoJson.setStyle(this.defaultStyle);
+            console.info(myGeoJson)
+            myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
+            myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
+            myGeoJson.on("click", (_e: LeafletMouseEvent) => {
+              this.analyses.forEach((analyse) => {analyse.destroyView()})
+              this.analyses = this.postresql.getAnalyseDepartement({
+                  "vente": _e.sourceTarget.feature.properties.vente,
+                  "prix_median": _e.sourceTarget.feature.properties.prix_median
+              }, _e.sourceTarget.feature.properties.nom)
+              this.changeDetector.detectChanges()
+            })
+            layerGroupGeometrieDepartement.addLayer(myGeoJson);
 
-          
+          })
         })
+
       })
-      this.layersControl.baseLayers.departement = layerGroupGeometrieDepartement
-      this.changeDetector.detectChanges() 
+      this.layersControl.baseLayers["departement"] = layerGroupGeometrieDepartement
     })
   }
 
   private initIRIS(http: HttpClientODS) {
+    let layerGroupGeometrieIRIS = layerGroup();
     http.getIRIS().subscribe(response => {
-      console.info('chargement IRIS')
-      let layerGroupGeometrieIRIS = layerGroup();
       response.forEach((value) => {
-        let epci_code:string;
-        let geometrie = value["geo_shape"];
-        epci_code = value["epci_code"][0];
-        let myStyle = {
-          "weight": 1,
-          "opacity": 0.3,
-          "fillOpacity": 0
-
-        };
+        let nomIRIS = value["iris_name"]
+        let geometrie = value["geo_shape"]
         let myjson = JSON.parse(JSON.stringify(geometrie))
-        myjson["properties"] = {
-          "name": "Alabama",
-          "density": 94.65
-      }
-        let layer = geoJSON(myjson).setStyle(myStyle).on('mouseover', (e) => {
-          let mouseover = { "weight": 2, "opacity": 0.9,"fillOpacity":0.3};
-          e.target.setStyle(mouseover)
-        })
-        layer.on('mouseout', (e) => {
-          let mouseover = { "weight": 1, "opacity": 0.3,"fillOpacity": 0};
-          e.target.setStyle(mouseover)
-        })
-        layerGroupGeometrieIRIS.addLayer(layer.on("click", (_e: LeafletMouseEvent) => {
-          // Emission d'un evenement
-          this.postresql.getanalyseIRIS(value['geo_shape']['geometry']).subscribe(response => {
-              this.analyses.forEach((analyse)=>{
-                analyse.destroyView()
-              })
-              this.analyses = [new AnalyseBar("an3",{'values':response},"test",
-              "anneemut",
-              "ordinal",
-              "nb_vendu",
-              "quantitative",
-              "type",
-              "nominal")]
-              this.changeDetector.detectChanges()
-            })
-        }));
+        myjson["properties"]["nom"] = nomIRIS
+        let mygeoJSON = geoJSON(myjson)
+        mygeoJSON.setStyle(this.defaultStyle)
+        mygeoJSON.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) })
+        mygeoJSON.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) })
+        layerGroupGeometrieIRIS.addLayer(mygeoJSON)
       })
-      this.layersControl.baseLayers['IRIS']=layerGroupGeometrieIRIS
-    });
+      layerGroupGeometrieIRIS.getLayers().forEach((layer) => {
+        layer.on("click", (_e: LeafletMouseEvent) => {
+          this.analyses.forEach((analyse) => {analyse.destroyView()})
+          this.analyses = this.postresql.getanalyseIRIS({ "values": _e.sourceTarget.feature.properties.data }, _e.sourceTarget.feature.properties.nom)
+          this.changeDetector.detectChanges()
+        })
+      })
+    })
+    this.layersControl.baseLayers['IRIS'] = layerGroupGeometrieIRIS;
   }
-
-  handlerCommuneClick(e : {type:string,commune:string}):void{
-    this.analyses = this.postresql.getAnalyseParCommune(e.commune)
-    this.changeDetector.detectChanges();
-  }
-
 }
