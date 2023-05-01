@@ -1,3 +1,36 @@
+<div class="row">
+	<div class="col">
+		<div ngbDropdown class="d-inline-block">
+			<button type="button" class="btn btn-dark" id="dropdownBasic1" ngbDropdownToggle>
+				Echelles
+			</button>
+			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+				<button ngbDropdownItem>Département</button>
+				<button ngbDropdownItem>Intercommune</button>
+				<button ngbDropdownItem>Commune</button>
+                <button ngbDropdownItem>IRIS</button>
+			</div>
+		</div>
+        <div ngbDropdown class="d-inline-block">
+			<button type="button" class="btn btn-dark" id="dropdownBasic1" ngbDropdownToggle>
+				Données
+			</button>
+			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+				<button ngbDropdownItem>DVF</button>
+				<button ngbDropdownItem>Lieux touristiques</button>
+			</div>
+		</div>
+        <div ngbDropdown class="d-inline-block">
+			<button type="button" class="btn btn-dark" id="dropdownBasic1" ngbDropdownToggle>
+				Cloropeth
+			</button>
+			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+				<button ngbDropdownItem>Les ventes de maisons</button>
+                <button ngbDropdownItem>Les ventes d'appartements</button>
+			</div>
+		</div>
+	</div>
+</div>
 <div id='map' [ngClass]="{'reduit': analyses.length != 0}" class="map-container" leaflet 
     [leafletLayersControl]="layersControl"
      [leafletOptions]="options"
