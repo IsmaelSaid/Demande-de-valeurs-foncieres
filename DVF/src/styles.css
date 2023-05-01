@@ -3,3 +3,8 @@
 body{
     height: 100vh;
 }
+
+.bg-custom {
+    --bs-bg-opacity: 1;
+    background-color: rgba(50,50,50,var(--bs-bg-opacity))!important;
+}
