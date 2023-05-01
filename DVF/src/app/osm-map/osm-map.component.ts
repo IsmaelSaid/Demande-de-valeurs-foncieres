@@ -7,34 +7,53 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import 'leaflet.markercluster';
 import { PgsqlBack } from 'src/services/pgsql-back.service';
 import { Analyse } from '../models/analyse.model';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { NgbActiveOffcanvas, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { CanvasModule } from '../canvas/canvas.module';
 @Component({
 	selector: 'ngbd-offcanvas-content',
   standalone : true,
-  imports : [CanvasModule],
+  imports : [CanvasModule,NgbNavModule],
   template: `
-		<div class="offcanvas-header">
-			<h5 class="offcanvas-title">{{nom}}</h5>
-			<button
-				type="button"
-				class="btn-close text-reset"
-				aria-label="Close"
-				(click)="activeOffcanvas.dismiss('Cross click')"
-			></button>
-		</div>
-		<div class="offcanvas-body">
-    <div id="analyse"></div>
-    <app-analyse-multiple [analyses]="analyses">
-    </app-analyse-multiple>
-    </div>
+  <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+	<li [ngbNavItem]="1">
+		<button ngbNavLink>Statistiques</button>
+		<ng-template ngbNavContent>
+			<p>
+				Statistiques ici
+			</p>
+		</ng-template>
+	</li>
+	<li [ngbNavItem]="2">
+		<button ngbNavLink>Infographies</button>
+		<ng-template ngbNavContent>
+    <div class="offcanvas-header">
+    <h5 class="offcanvas-title">{{nom}}</h5>
+    <button
+      type="button"
+      class="btn-close text-reset"
+      aria-label="Close"
+      (click)="activeOffcanvas.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+  <div id="analyse"></div>
+  <app-analyse-multiple [analyses]="analyses">
+  </app-analyse-multiple>
+  </div>
+		</ng-template>
+	</li>
+</ul>
+<div [ngbNavOutlet]="nav" class="mt-2"></div>
+<pre>Active: {{ active }}</pre>
 	`
 })
 
 export class NgbdOffcanvasContent {
   @Input() analyses: Analyse[] = [];
   @Input() nom:string = ""
+  @Input() active : number = 2
 	constructor(public activeOffcanvas: NgbActiveOffcanvas) {}
 }
 @Component({
