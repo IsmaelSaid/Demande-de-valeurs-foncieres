@@ -1,15 +1,61 @@
 /// <reference types='leaflet-sidebar-v2' />
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Map, Control, DomUtil, ZoomAnimEvent, Layer, MapOptions, tileLayer, latLng, geoJSON, layerGroup, geoJson, Marker, LayerGroup, SidebarOptions, control, LeafletMouseEvent, LeafletEvent } from 'leaflet';
 import { CONFIG } from '../configuration/config';
 import { HttpClientODS } from '../../services/http-client-open-data-soft.service';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import 'leaflet.markercluster';
 import { PgsqlBack } from 'src/services/pgsql-back.service';
-import { btn } from './btn';
 import { Analyse } from '../models/analyse.model';
-import { AnalyseBar } from '../models/analyse-bar-plot.model';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { NgbActiveOffcanvas, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
+import { CanvasModule } from '../canvas/canvas.module';
+@Component({
+	selector: 'ngbd-offcanvas-content',
+  standalone : true,
+  imports : [CanvasModule,NgbNavModule],
+  template: `
+  <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+	<li [ngbNavItem]="1">
+		<button ngbNavLink>Statistiques</button>
+		<ng-template ngbNavContent>
+			<p>
+				Statistiques ici
+			</p>
+		</ng-template>
+	</li>
+	<li [ngbNavItem]="2">
+		<button ngbNavLink>Infographies</button>
+		<ng-template ngbNavContent>
+    <div class="offcanvas-header">
+    <h5 class="offcanvas-title">{{nom}}</h5>
+    <button
+      type="button"
+      class="btn-close text-reset"
+      aria-label="Close"
+      (click)="activeOffcanvas.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+  <div id="analyse"></div>
+  <app-analyse-multiple [analyses]="analyses">
+  </app-analyse-multiple>
+  </div>
+		</ng-template>
+	</li>
+</ul>
+<div [ngbNavOutlet]="nav" class="mt-2"></div>
+<pre>Active: {{ active }}</pre>
+	`
+})
+
+export class NgbdOffcanvasContent {
+  @Input() analyses: Analyse[] = [];
+  @Input() nom:string = ""
+  @Input() active : number = 2
+	constructor(public activeOffcanvas: NgbActiveOffcanvas) {}
+}
 @Component({
   selector: 'app-osm-map',
   templateUrl: './osm-map.component.html',
@@ -51,13 +97,29 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   // Configuration pour la programmation asynchrone
   @Output() map$: EventEmitter<Map> = new EventEmitter;
   @Output() zoom$: EventEmitter<number> = new EventEmitter;
-  @Output() selectCommune$: EventEmitter<{ type: string, commune: string }> = new EventEmitter;
+  @Output() selected$: EventEmitter<string> = new EventEmitter;
 
 
-  constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector: ChangeDetectorRef) {
-    this.selectCommune$.subscribe(this.changeDetector.detectChanges)
+  constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector: ChangeDetectorRef,private offcanvasService: NgbOffcanvas, private zone:NgZone) {
     this.analyses = []
+    
   }
+  open(data : Analyse[],nom: string) {
+    this.zone.run(()=>{
+      let canvasOptions = {
+        panelClass : "bg-custom text-white"
+      }
+      const offcanvasRef = this.offcanvasService.open(NgbdOffcanvasContent,canvasOptions);
+      offcanvasRef.componentInstance.analyses = data;
+      offcanvasRef.componentInstance.nom = nom;
+      offcanvasRef.closed.subscribe((valueclosed)=>{
+        console.info("fermé")
+      })
+      offcanvasRef.dismissed.subscribe((valuedissmissed)=>{
+        console.info("dissmised")
+      })   
+    })
+	}
   ngOnInit() {
     this.layersControl = { baseLayers: {}, overlays: {} }
     this.initCommunesTiles(this.http);
@@ -77,8 +139,6 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     this.zoom = map.getZoom();
     this.zoom$.emit(this.zoom);
     console.info("map ready");
-    // new btn({ position: 'topright' }).addTo(this.map)
-
 
   }
 
@@ -117,6 +177,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
                 },
                 _e.sourceTarget.feature.properties.nom)
               this.changeDetector.detectChanges()
+              this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
             })
             layerGroupGeometrieCommunes.addLayer(myGeoJson);
           })
@@ -147,13 +208,16 @@ export class OsmMapComponent implements OnInit, OnDestroy {
             myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
             myGeoJson.on("click", (_e: LeafletMouseEvent) => {
               this.analyses.forEach((analyse) => { analyse.destroyView() });
+              // this.changeDetector.detectChanges()
+              this.selected$.emit("test")
               this.analyses = this.postresql.getAnalyseParEpci(
                 {
                   "vente": _e.sourceTarget.feature.properties.vente,
                   "prix_median": _e.sourceTarget.feature.properties.prix_median
                 },
                 _e.sourceTarget.feature.properties.nom)
-              this.changeDetector.detectChanges()
+                this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
+
             })
             layerGroupGeometrieEpci.addLayer(myGeoJson);
           })
@@ -182,13 +246,13 @@ export class OsmMapComponent implements OnInit, OnDestroy {
             myGeoJson.on("click", (_e: LeafletMouseEvent) => {
               this.analyses.forEach((analyse) => {analyse.destroyView()})
               this.analyses = this.postresql.getAnalyseDepartement({
-                  "vente": _e.sourceTarget.feature.properties.vente,
-                  "prix_median": _e.sourceTarget.feature.properties.prix_median
+                "vente": _e.sourceTarget.feature.properties.vente,
+                "prix_median": _e.sourceTarget.feature.properties.prix_median
               }, _e.sourceTarget.feature.properties.nom)
-              this.changeDetector.detectChanges()
+              this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
             })
             layerGroupGeometrieDepartement.addLayer(myGeoJson);
-
+            
           })
         })
 
@@ -216,6 +280,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
           this.analyses.forEach((analyse) => {analyse.destroyView()})
           this.analyses = this.postresql.getanalyseIRIS({ "values": _e.sourceTarget.feature.properties.data }, _e.sourceTarget.feature.properties.nom)
           this.changeDetector.detectChanges()
+          this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
         })
       })
     })

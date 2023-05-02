@@ -1,31 +1,19 @@
-/* .map-container {
-    width:60%;
-    height:100%;
-    position: absolute;
-} */
-
-
 .map-container {
     position: relative;
     height: 100%;  /* or as desired */
     width: 100%;  /* This means "100% of the width of its container", the .col-md-8 */
   }
-  
   #analyse{
     height: 100vh;
     background-color: rgb(255, 255, 255);
   }
 
-  #analyse{
+  .col {
+    flex: 1 0 0%;
     position: absolute;
-    background-color: #333;
-    top: 0vh;
-    /* left: 5%; */
     z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    /* height: auto; */
-    border-radius: 1px;
-    -webkit-box-shadow: 7px 4px 11px -1px rgba(0,0,0,0.3); 
-    box-shadow: 7px 4px 11px -1px rgba(0,0,0,0.3);
-}
+    text-align: center;
+  }
+  .btn{
+    border-radius: 0%;
+  }
