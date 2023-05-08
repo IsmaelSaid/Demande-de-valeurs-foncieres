@@ -11,10 +11,11 @@ import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { NgbActiveOffcanvas, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { CanvasModule } from '../canvas/canvas.module';
+import { CommonModule } from '@angular/common';
 @Component({
-	selector: 'ngbd-offcanvas-content',
-  standalone : true,
-  imports : [CanvasModule,NgbNavModule],
+  selector: 'ngbd-offcanvas-content',
+  standalone: true,
+  imports: [CanvasModule, NgbNavModule, CommonModule],
   template: `
   <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
 	<li [ngbNavItem]="1">
@@ -22,6 +23,7 @@ import { CanvasModule } from '../canvas/canvas.module';
 		<ng-template ngbNavContent>
 			<p>
 				Statistiques ici
+        {{stats | json}}
 			</p>
 		</ng-template>
 	</li>
@@ -52,9 +54,10 @@ import { CanvasModule } from '../canvas/canvas.module';
 
 export class NgbdOffcanvasContent {
   @Input() analyses: Analyse[] = [];
-  @Input() nom:string = ""
-  @Input() active : number = 2
-	constructor(public activeOffcanvas: NgbActiveOffcanvas) {}
+  @Input() nom: string = ""
+  @Input() active: number = 2
+  @Input() stats: object | undefined
+  constructor(public activeOffcanvas: NgbActiveOffcanvas) { }
 }
 @Component({
   selector: 'app-osm-map',
@@ -100,32 +103,33 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   @Output() selected$: EventEmitter<string> = new EventEmitter;
 
 
-  constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector: ChangeDetectorRef,private offcanvasService: NgbOffcanvas, private zone:NgZone) {
+  constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector: ChangeDetectorRef, private offcanvasService: NgbOffcanvas, private zone: NgZone) {
     this.analyses = []
-    
+
   }
-  open(data : Analyse[],nom: string) {
-    this.zone.run(()=>{
+  open(data: Analyse[], stats: Object, nom: string) {
+    this.zone.run(() => {
       let canvasOptions = {
-        panelClass : "bg-custom text-white"
+        panelClass: "bg-custom text-white"
       }
-      const offcanvasRef = this.offcanvasService.open(NgbdOffcanvasContent,canvasOptions);
+      const offcanvasRef = this.offcanvasService.open(NgbdOffcanvasContent, canvasOptions);
       offcanvasRef.componentInstance.analyses = data;
+      offcanvasRef.componentInstance.stats = stats;
       offcanvasRef.componentInstance.nom = nom;
-      offcanvasRef.closed.subscribe((valueclosed)=>{
+      offcanvasRef.closed.subscribe((valueclosed) => {
         console.info("fermé")
       })
-      offcanvasRef.dismissed.subscribe((valuedissmissed)=>{
+      offcanvasRef.dismissed.subscribe((valuedissmissed) => {
         console.info("dissmised")
-      })   
+      })
     })
-	}
+  }
   ngOnInit() {
     this.layersControl = { baseLayers: {}, overlays: {} }
     this.initCommunesTiles(this.http);
     this.initEpciTiles(this.http);
-    this.initDepartement(this.http);
     this.initIRIS(this.http);
+    this.initDepartement(this.http);
   }
 
   ngOnDestroy() {
@@ -153,33 +157,35 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     http.getCommunes().subscribe(response => {
       console.info('chargement communes')
       response.forEach((value) => {
-        // console.info(value)
         let communeCode = value["com_code"][0];
         this.postresql.getVenteCommune(communeCode).subscribe((dataVente) => {
           this.postresql.getPrixMedianCommune(communeCode).subscribe((dataPrixMedian) => {
-            let nomCommune = value["com_name"][0];
-            let geometrie = value["geo_shape"];
-            let myJson = JSON.parse(JSON.stringify(geometrie))
-            let myGeoJson;
-            myJson["properties"]["vente"] = dataVente;
-            myJson["properties"]["prix_median"] = dataPrixMedian;
-            myJson["properties"]["nom"] = nomCommune;
-            myGeoJson = geoJSON(myJson)
-            myGeoJson.setStyle(this.defaultStyle)
-            myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
-            myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
-            myGeoJson.on("click", (_e: LeafletMouseEvent) => {
-              this.analyses.forEach((analyse) => { analyse.destroyView() });
-              this.analyses = this.postresql.getAnalyseParCommune(
-                {
-                  "vente": _e.sourceTarget.feature.properties.vente,
-                  "prix_median": _e.sourceTarget.feature.properties.prix_median
-                },
-                _e.sourceTarget.feature.properties.nom)
-              this.changeDetector.detectChanges()
-              this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
+            this.postresql.getStatsCommune(communeCode).subscribe((stats) => {
+              let nomCommune = value["com_name"][0];
+              let geometrie = value["geo_shape"];
+              let myJson = JSON.parse(JSON.stringify(geometrie))
+              let myGeoJson;
+              myJson["properties"]["vente"] = dataVente;
+              myJson["properties"]["prix_median"] = dataPrixMedian;
+              myJson["properties"]["nom"] = nomCommune;
+              myJson["properties"]["stats"] = stats;
+              myGeoJson = geoJSON(myJson)
+              myGeoJson.setStyle(this.defaultStyle)
+              myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
+              myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
+              myGeoJson.on("click", (_e: LeafletMouseEvent) => {
+                this.analyses.forEach((analyse) => { analyse.destroyView() });
+                this.analyses = this.postresql.getAnalyseParCommune(
+                  {
+                    "vente": _e.sourceTarget.feature.properties.vente,
+                    "prix_median": _e.sourceTarget.feature.properties.prix_median
+                  },
+                  _e.sourceTarget.feature.properties.nom)
+                this.changeDetector.detectChanges()
+                this.open(this.analyses, _e.sourceTarget.feature.properties.stats, _e.sourceTarget.feature.properties.nom);
+              })
+              layerGroupGeometrieCommunes.addLayer(myGeoJson);
             })
-            layerGroupGeometrieCommunes.addLayer(myGeoJson);
           })
         })
       })
@@ -195,31 +201,33 @@ export class OsmMapComponent implements OnInit, OnDestroy {
         let epciCode = value["epci_code"][0];
         this.postresql.getVenteEpci(epciCode).subscribe((dataVente) => {
           this.postresql.getPrixMedianEpci(epciCode).subscribe((dataPrixMedian) => {
-            let epciName = value["epci_name"]
-            let geometrie = value["geo_shape"];
-            let myJson = JSON.parse(JSON.stringify(geometrie))
-            let myGeoJson;
-            myJson["properties"]["vente"] = dataVente;
-            myJson["properties"]["prix_median"] = dataPrixMedian;
-            myJson["properties"]["nom"] = epciName;
-            myGeoJson = geoJSON(myJson)
-            myGeoJson.setStyle(this.defaultStyle)
-            myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
-            myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
-            myGeoJson.on("click", (_e: LeafletMouseEvent) => {
-              this.analyses.forEach((analyse) => { analyse.destroyView() });
-              // this.changeDetector.detectChanges()
-              this.selected$.emit("test")
-              this.analyses = this.postresql.getAnalyseParEpci(
-                {
-                  "vente": _e.sourceTarget.feature.properties.vente,
-                  "prix_median": _e.sourceTarget.feature.properties.prix_median
-                },
-                _e.sourceTarget.feature.properties.nom)
-                this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
-
+            this.postresql.getStatsEpci(epciCode).subscribe((stats) => {
+              let epciName = value["epci_name"]
+              let geometrie = value["geo_shape"];
+              let myJson = JSON.parse(JSON.stringify(geometrie))
+              let myGeoJson;
+              myJson["properties"]["vente"] = dataVente;
+              myJson["properties"]["prix_median"] = dataPrixMedian;
+              myJson["properties"]["nom"] = epciName;
+              myJson["properties"]["stats"] = stats;
+              myGeoJson = geoJSON(myJson)
+              myGeoJson.setStyle(this.defaultStyle)
+              myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
+              myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
+              myGeoJson.on("click", (_e: LeafletMouseEvent) => {
+                this.analyses.forEach((analyse) => { analyse.destroyView() });
+                // this.changeDetector.detectChanges()
+                this.selected$.emit("test")
+                this.analyses = this.postresql.getAnalyseParEpci(
+                  {
+                    "vente": _e.sourceTarget.feature.properties.vente,
+                    "prix_median": _e.sourceTarget.feature.properties.prix_median
+                  },
+                  _e.sourceTarget.feature.properties.nom)
+                this.open(this.analyses, _e.sourceTarget.feature.properties.stats, _e.sourceTarget.feature.properties.nom);
+              })
+              layerGroupGeometrieEpci.addLayer(myGeoJson);
             })
-            layerGroupGeometrieEpci.addLayer(myGeoJson);
           })
         })
       })
@@ -232,27 +240,29 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       response.forEach((value) => {
         this.postresql.getVenteDepartement().subscribe((dataVente) => {
           this.postresql.getPrixMedianDepartement().subscribe((dataPrixMedian) => {
-            let geometrie = value["geo_shape"];
-            let myJson = JSON.parse(JSON.stringify(geometrie))
-            let myGeoJson;
-            myJson["properties"]["vente"] = dataVente;
-            myJson["properties"]["prix_median"] = dataPrixMedian;
-            myJson["properties"]["nom"] = "La Réunion";
-            myGeoJson = geoJSON(myJson);
-            myGeoJson.setStyle(this.defaultStyle);
-            console.info(myGeoJson)
-            myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
-            myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
-            myGeoJson.on("click", (_e: LeafletMouseEvent) => {
-              this.analyses.forEach((analyse) => {analyse.destroyView()})
-              this.analyses = this.postresql.getAnalyseDepartement({
-                "vente": _e.sourceTarget.feature.properties.vente,
-                "prix_median": _e.sourceTarget.feature.properties.prix_median
-              }, _e.sourceTarget.feature.properties.nom)
-              this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
+            this.postresql.getStatsDepartement().subscribe((stats) => {
+              let geometrie = value["geo_shape"];
+              let myJson = JSON.parse(JSON.stringify(geometrie))
+              let myGeoJson;
+              myJson["properties"]["vente"] = dataVente;
+              myJson["properties"]["prix_median"] = dataPrixMedian;
+              myJson["properties"]["nom"] = "La Réunion";
+              myJson["properties"]["stats"] = stats;
+              myGeoJson = geoJSON(myJson);
+              myGeoJson.setStyle(this.defaultStyle);
+              myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
+              myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
+              myGeoJson.on("click", (_e: LeafletMouseEvent) => {
+                this.analyses.forEach((analyse) => { analyse.destroyView() })
+                this.analyses = this.postresql.getAnalyseDepartement({
+                  "vente": _e.sourceTarget.feature.properties.vente,
+                  "prix_median": _e.sourceTarget.feature.properties.prix_median
+                }, _e.sourceTarget.feature.properties.nom)
+                this.open(this.analyses, _e.sourceTarget.feature.properties.stats, _e.sourceTarget.feature.properties.nom);
+              })
+              layerGroupGeometrieDepartement.addLayer(myGeoJson);
             })
-            layerGroupGeometrieDepartement.addLayer(myGeoJson);
-            
+
           })
         })
 
@@ -265,10 +275,11 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     let layerGroupGeometrieIRIS = layerGroup();
     http.getIRIS().subscribe(response => {
       response.forEach((value) => {
-        let nomIRIS = value["iris_name"]
-        let geometrie = value["geo_shape"]
-        let myjson = JSON.parse(JSON.stringify(geometrie))
-        myjson["properties"]["nom"] = nomIRIS
+        let nomIRIS = value["iris_name"];
+        let geometrie = value["geo_shape"];
+        let myjson = JSON.parse(JSON.stringify(geometrie));
+        myjson["properties"]["nom"] = nomIRIS;
+        // myjson["properties"]["stats"] = value["stats"];
         let mygeoJSON = geoJSON(myjson)
         mygeoJSON.setStyle(this.defaultStyle)
         mygeoJSON.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) })
@@ -277,13 +288,38 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       })
       layerGroupGeometrieIRIS.getLayers().forEach((layer) => {
         layer.on("click", (_e: LeafletMouseEvent) => {
-          this.analyses.forEach((analyse) => {analyse.destroyView()})
+          this.analyses.forEach((analyse) => { analyse.destroyView() })
           this.analyses = this.postresql.getanalyseIRIS({ "values": _e.sourceTarget.feature.properties.data }, _e.sourceTarget.feature.properties.nom)
           this.changeDetector.detectChanges()
-          this.open(this.analyses, _e.sourceTarget.feature.properties.nom);
+          this.open(this.analyses, _e.sourceTarget.feature.properties.stats, _e.sourceTarget.feature.properties.nom);
         })
       })
     })
     this.layersControl.baseLayers['IRIS'] = layerGroupGeometrieIRIS;
+  }
+
+  public coroplethVenteMaison() {
+    let mygeoJSON = geoJson(this.layersControl.baseLayers['IRIS'].toGeoJSON(),{style : this.style})
+    this.layersControl.baseLayers['IRIS'] = mygeoJSON;
+  }
+  public style(feature : any) {
+    function getColor(d: number) {
+      console.log(d)
+      return d > 200 ? '#800026' :
+      d > 100 ? '#BD0026' :
+        d > 50 ? '#E31A1C' :
+          d > 25 ? '#FC4E2A' :
+            d > 10 ? '#FD8D3C' :
+              d > 5 ? '#FEB24C' :
+                d > 2 ? '#FED976' :
+                  '#FFEDA0';
+    }
+    return {
+        fillColor: getColor(feature.properties.stats[0].nombre_vente_appartements),
+        weight: 1,
+        opacity: 1,
+        color: 'white',
+        fillOpacity: 0.5
+    };
   }
 }
