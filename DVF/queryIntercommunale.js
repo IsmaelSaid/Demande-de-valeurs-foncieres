@@ -122,7 +122,47 @@ const prixMedian = (request, response) => {
       }
     );
   };
+
+  const stats = (request, response) => {
+    const codeinseeepci = request.params.codeinseeepci;
+    console.info("Type local vendu par commune et par année : " + codeinseeepci);
+    pool.query(
+      `WITH stats_maisons AS( 
+        SELECT 
+        CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbatmai) AS NUMERIC(10,2)) as prix_m2_median_maisons,
+        COUNT(*) as nombre_vente_maisons
+        FROM dvf.mutation
+        WHERE libnatmut = 'Vente'
+        AND nblocmai > 0
+        AND anneemut != 2022
+        AND nblocapt = 0
+        AND $1 && l_codinsee
+      ),stats_appartements AS (
+        SELECT 
+        CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbati) AS NUMERIC(10,2)) as prix_m2_median_appartements,
+        COUNT(*) as nombre_vente_appartements
+        FROM dvf.mutation
+        WHERE libnatmut = 'Vente'
+        AND nblocmai = 0
+        AND anneemut != 2022
+        AND nblocapt > 0
+        AND sbatapt > 0
+        AND $1 && l_codinsee)
+      select * 
+      FROM stats_maisons FULL OUTER JOIN stats_appartements on TRUE`
+    ,
+      [mapper_epci(codeinseeepci)],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        response.status(200).json(results.rows);
+      }
+    );
+  };
+  
 module.exports = {
     prixMedian,
-    vente 
+    vente,
+    stats
 };

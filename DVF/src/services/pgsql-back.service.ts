@@ -117,6 +117,13 @@ export class PgsqlBack {
     public getPrixMedianEpci(codeEpci: string) {
       return this.http.get("/api/intercommunale/prix_median/" + codeEpci)
     }
+
+    public getStatsEpci(codeEpci: string) {
+      return this.http.get("/api/intercommunale/stats/" + codeEpci)
+    }
+
+
+
     
     public getVenteCommune(codeCommune: string) {
       return this.http.get("/api/commune/vente/" + codeCommune)
@@ -124,6 +131,10 @@ export class PgsqlBack {
     
     public getPrixMedianCommune(codeCommune: string) {
       return this.http.get("/api/commune/prix_median/" + codeCommune)
+    }
+
+    public getStatsCommune(codeCommune: string) {
+      return this.http.get("/api/commune/stats/" + codeCommune)
     }
     
     public ventePrixMedian(codeEpci: string) {
@@ -136,6 +147,10 @@ export class PgsqlBack {
     
     public getPrixMedianDepartement(){
       return this.http.get("/api/global/prix_median/")
+    }
+
+    public getStatsDepartement(){
+      return this.http.get("/api/global/stats/")
     }
   public epci_mapper(epci: string): string[] {
     let communes: string[] = []

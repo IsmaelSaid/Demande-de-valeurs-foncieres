@@ -22,16 +22,20 @@ app.get('/', function(req,res) {
 
 app.get('/api/global/vente/',db_global.vente)
 app.get('/api/global/prix_median/',db_global.prixMedian)
+app.get('/api/global/stats/',db_global.stats)
+
 
 // -------------------------------------------------------------------------------------------------------------------------
 
 app.get('/api/intercommunale/vente/:codeinseeepci',db_intercommunale.vente)
 app.get('/api/intercommunale/prix_median/:codeinseeepci',db_intercommunale.prixMedian)
+app.get('/api/intercommunale/stats/:codeinseeepci',db_intercommunale.stats)
 
 // -------------------------------------------------------------------------------------------------------------------------
 
 app.get('/api/commune/vente/:codeinsee',db_local.vente)
 app.get('/api/commune/prix_median/:codeinsee',db_local.prixMedian)
+app.get('/api/commune/stats/:codeinsee',db_local.stats)
 
 //--------------------------------------------------------------------------------------------------------------------------
 
