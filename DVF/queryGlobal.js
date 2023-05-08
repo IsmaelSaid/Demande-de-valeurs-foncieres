@@ -224,11 +224,47 @@ AND nblocapt > 0`,
   );
 };
 
+const stats = (request, response) => {
+  pool.query(
+    `WITH stats_maisons AS( 
+      SELECT 
+        CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbatmai) AS NUMERIC(10,2)) as prix_m2_median_maisons,
+      COUNT(*) as nombre_vente_maisons
+      FROM dvf.mutation
+        WHERE libnatmut = 'Vente'
+        AND nblocmai > 0
+        AND anneemut != 2022
+        AND nblocapt = 0
+        ),
+      stats_appartements AS (
+        SELECT 
+        CAST(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY valeurfonc/sbati) AS NUMERIC(10,2)) as prix_m2_median_appartements,
+      COUNT(*) as nombre_vente_appartements
+      FROM dvf.mutation
+        WHERE libnatmut = 'Vente'
+        AND nblocmai = 0
+        AND anneemut != 2022
+        AND nblocapt > 0
+        AND sbatapt > 0
+              )
+    select * 
+    FROM stats_maisons FULL OUTER JOIN stats_appartements on TRUE`,
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
+    }
+  );
+};
+
+
 module.exports = {
   vente,
   prixMedian,
   natureMutationGlobal,
   typeLocalGlobal,
   typeLocalVenduParCommune,
-  prixMedianMaisonAppartement
+  prixMedianMaisonAppartement,
+  stats
 };
