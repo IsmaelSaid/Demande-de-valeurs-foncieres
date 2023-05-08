@@ -5,10 +5,10 @@
 				Echelles
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button ngbDropdownItem>Département</button>
-				<button ngbDropdownItem>Intercommune</button>
-				<button ngbDropdownItem>Commune</button>
-                <button ngbDropdownItem>IRIS</button>
+				<button ngbDropdownItem (click) ="setActiveLayerDepartement()">Département</button>
+				<button ngbDropdownItem (click) ="setActiveLayerIntercommune()">Intercommune</button>
+				<button ngbDropdownItem (click) ="setActiveLayerCommune()">Commune</button>
+                <button ngbDropdownItem (click) ="setActiveLayerIRIS()">IRIS</button>
 			</div>
 		</div>
         <div ngbDropdown class="d-inline-block">
@@ -32,7 +32,6 @@
 	</div>
 </div>
 <div id='map' [ngClass]="{'reduit': analyses.length != 0}" class="map-container" leaflet 
-    [leafletLayersControl]="layersControl"
      [leafletOptions]="options"
      (leafletMapReady)="onMapReady($event)"
 ></div>
