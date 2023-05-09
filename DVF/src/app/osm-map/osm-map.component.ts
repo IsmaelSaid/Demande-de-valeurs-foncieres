@@ -231,7 +231,8 @@ export class OsmMapComponent implements OnInit, OnDestroy {
         }, (e: Error) => { console.error(e) }, () => { console.info("fin getVenteCommune") })
       })
     }, (e: Error) => { console.error(e) });
-
+    this.choroplethCommuneNbVenteMaison = geoJson(this.geojsonCommune.toGeoJSON(), { style: this.irisChoroplethVenteMaisonStyler })
+    this.choroplethCommuneNbVenteMaison.on("click", (_e: LeafletMouseEvent) => { this.communeClickHandler(_e) })
   }
 
   private initIRIS(http: HttpClientODS) {
@@ -272,7 +273,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     };
   }
 
-  public coroplethVenteMaison() {
+  public setActiveLayerIrisChoroplethNbVenteMaison() {
     this.map.removeLayer(this.activeLayer);
     this.activeLayer = this.choroplethIrisNbVenteMaison;
     this.map.addLayer(this.activeLayer)

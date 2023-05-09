@@ -16,8 +16,8 @@
 				Données
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button ngbDropdownItem>DVF</button>
-				<button ngbDropdownItem>Lieux touristiques</button>
+				<button ngbDropdownItem disabled >Transactions immobilières</button>
+				<button ngbDropdownItem disabled >Lieux touristiques</button>
 			</div>
 		</div>
         <div ngbDropdown class="d-inline-block">
@@ -25,8 +25,10 @@
 				Cloropeth
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button ngbDropdownItem (click) ="coroplethVenteMaison()">Les ventes de maisons</button>
-                <button ngbDropdownItem>Les ventes d'appartements</button>
+				<button ngbDropdownItem (click) ="setActiveLayerIrisChoroplethNbVenteMaison()">Nombre de vente maison</button>
+				<button ngbDropdownItem disabled >Nombre de vente appartement</button>
+				<button ngbDropdownItem disabled >Prix du m2 maison</button>
+				<button ngbDropdownItem disabled >Prix du m2 appartement</button>
 			</div>
 		</div>
 	</div>
