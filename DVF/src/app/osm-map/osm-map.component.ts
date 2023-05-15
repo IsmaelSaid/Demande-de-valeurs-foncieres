@@ -12,6 +12,9 @@ import { NgbActiveOffcanvas, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { CanvasModule } from '../canvas/canvas.module';
 import { CommonModule } from '@angular/common';
 import { GeoJSON } from 'leaflet';
+import { Legend } from '../models/legend.model';
+import * as _ from 'lodash';
+
 @Component({
   selector: 'ngbd-offcanvas-content',
   standalone: true,
@@ -70,26 +73,11 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   geojsonCommune = geoJSON()
   geojsonIntercommune = geoJSON()
   geojsonDepartement = geoJSON()
-
-  choroplethIrisNbVenteMaison = geoJSON()
-  choroplethIrisNbVenteAppartement = geoJSON()
-  choroplethIrisPrixMaison = geoJSON()
-  choroplethIrisPrixAppartement = geoJSON()
-
-  choroplethCommuneNbVenteMaison = geoJSON()
-  choroplethCommuneNbVenteAppartement = geoJSON()
-  choroplethCommunePrixMaison = geoJSON()
-  choroplethCommunePrixAppartement = geoJSON()
-
-  choroplethIntercommuneNbVenteMaison = geoJSON()
-  choroplethIntercommuneNbVenteAppartement = geoJSON()
-  choroplethIntercommunePrixMaison = geoJSON()
-  choroplethIntercommunePrixAppartement = geoJSON()
-
+  choroplethView = 'None'
+  activeLayer = "departement"
+  al = this.geojsonDepartement
   @Output() map$: EventEmitter<Map> = new EventEmitter;
   @Output() zoom$: EventEmitter<number> = new EventEmitter;
-
-  activeLayer = this.geojsonDepartement
   defaultStyle = { "weight": 1, "opacity": 0.3, "fillOpacity": 0 };
   hoverStyle = { "weight": 2, "opacity": 0.9, "fillOpacity": 0.3 };
   map!: Map;
@@ -97,7 +85,6 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   layers: Layer[] = []
   layersControl: any
   analyses!: Analyse[]
-
   // Configurations de la caarte
   @Input() options: MapOptions = {
     layers: [tileLayer(CONFIG.tiles, {
@@ -109,12 +96,8 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     zoom: 10,
     center: latLng(latLng(CONFIG.localisationReunion[0], CONFIG.localisationReunion[1]))
   };
-
-
-
   constructor(private http: HttpClientODS, private postresql: PgsqlBack, private changeDetector: ChangeDetectorRef, private offcanvasService: NgbOffcanvas, private zone: NgZone) {
     this.analyses = []
-
   }
   open(data: Analyse[], stats: Object, nom: string) {
     this.zone.run(() => {
@@ -145,13 +128,12 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     this.map.clearAllEventListeners;
     this.map.remove();
   };
-
   onMapReady(map: Map) {
     this.map = map;
     this.map$.emit(map);
     this.zoom = map.getZoom();
     this.zoom$.emit(this.zoom);
-    this.map.addLayer(this.activeLayer)
+    this.map.addLayer(this.al)
   }
   onMapZoomEnd(e: ZoomAnimEvent) {
     this.zoom = e.target.getZoom();
@@ -221,20 +203,15 @@ export class OsmMapComponent implements OnInit, OnDestroy {
               myJson["properties"]["nom"] = nomCommune;
               myJson["properties"]["stats"] = stats;
               myGeoJson = geoJSON(myJson)
-              myGeoJson.setStyle(this.defaultStyle)
-              myGeoJson.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) });
-              myGeoJson.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) });
               myGeoJson.on("click", (_e: LeafletMouseEvent) => { this.communeClickHandler(_e) })
-              this.geojsonCommune.addLayer(myGeoJson)
+              this.geojsonCommune.addLayer(this.basicStyle(myGeoJson))
             }, (e: Error) => { console.error(e) }, () => { console.info("fin getStatsCommune") })
           }, (e: Error) => { console.error(e) }, () => { console.info("fin getPrixMedianCommune") })
         }, (e: Error) => { console.error(e) }, () => { console.info("fin getVenteCommune") })
       })
     }, (e: Error) => { console.error(e) });
-    this.choroplethCommuneNbVenteMaison = geoJson(this.geojsonCommune.toGeoJSON(), { style: this.irisChoroplethVenteMaisonStyler })
-    this.choroplethCommuneNbVenteMaison.on("click", (_e: LeafletMouseEvent) => { this.communeClickHandler(_e) })
   }
-
+  
   private initIRIS(http: HttpClientODS) {
     http.getIRIS().subscribe(response => {
       response.forEach((value) => {
@@ -246,66 +223,64 @@ export class OsmMapComponent implements OnInit, OnDestroy {
         this.geojsonIRIS.addLayer(this.basicStyle(mygeoJSON))
       })
       this.geojsonIRIS.getLayers().forEach((layer) => { this.irisLayerClickHandler(layer) })
-
-      // Création choroplet nb vente de maison
-      this.choroplethIrisNbVenteMaison = geoJson(this.geojsonIRIS.toGeoJSON(), { style: this.irisChoroplethVenteMaisonStyler })
-      this.choroplethIrisNbVenteMaison.getLayers().forEach((layer) => { this.irisLayerClickHandler(layer) })
     })
   }
 
-  public irisChoroplethVenteMaisonStyler(feature: any) {
-    function getColor(d: number) {
-      return d > 200 ? '#800026' :
-      d > 100 ? '#BD0026' :
-      d > 50 ? '#E31A1C' :
-      d > 25 ? '#FC4E2A' :
-      d > 10 ? '#FD8D3C' :
-      d > 5 ? '#FEB24C' :
-      d > 2 ? '#FED976' :
-      '#FFEDA0';
-    }
-    return {
-      fillColor: getColor(feature.properties.stats[0].nombre_vente_maisons),
-      weight: 1,
-      opacity: 1,
-      color: 'white',
-      fillOpacity: 0.5
-    };
-  }
-
-  public setActiveLayerIrisChoroplethNbVenteMaison() {
-    this.map.removeLayer(this.activeLayer);
-    this.activeLayer = this.choroplethIrisNbVenteMaison;
-    this.map.addLayer(this.activeLayer)
-  }
+  // -----------------------Base layers-----------------------------
   public setActiveLayerIRIS() {
-    this.map.removeLayer(this.activeLayer)
-    this.activeLayer = this.geojsonIRIS
-    this.map.addLayer(this.activeLayer)
+    this.map.removeLayer(this.al)
+    switch (this.choroplethView) {
+      case "None" :
+        this.al = this.geojsonIRIS
+        break;
+        case "nbVenteMaison" :
+        let l = new Legend("legend",this.geojsonIRIS,"nombre_vente_maisons")
+        this.al = geoJson(this.geojsonIRIS.toGeoJSON(), { style: l.getStyler() })
+        this.al.getLayers().forEach((layer) => { this.irisLayerClickHandler(layer) })
+      }
+    this.map.addLayer(this.al)
   }
   public setActiveLayerCommune() {
-    this.map.removeLayer(this.activeLayer)
-    this.activeLayer = this.geojsonCommune
-    this.map.addLayer(this.activeLayer)
+    this.map.removeLayer(this.al)
+  switch (this.choroplethView) {
+    case "None" :
+      this.al = this.geojsonCommune
+      break;
+    case "nbVenteMaison" :
+      let l = new Legend("legend",this.geojsonCommune,"nombre_vente_maisons")
+      this.al = geoJson(this.geojsonCommune.toGeoJSON(), { style: l.getStyler() })
+      this.al.on("click", (_e: LeafletMouseEvent) => { this.intercommuneClickHandler(_e) })
+      break;
+    }
+    this.map.addLayer(this.al)
   }
   public setActiveLayerIntercommune() {
-    this.map.removeLayer(this.activeLayer)
-    this.activeLayer = this.geojsonIntercommune
-    this.map.addLayer(this.activeLayer)
+    this.map.removeLayer(this.al)
+    switch(this.choroplethView){
+      case "None" :
+        this.al = this.geojsonIntercommune
+        break;
+      case "nbVenteMaison" :
+        let l = new Legend("legend",this.geojsonIntercommune,"nombre_vente_maisons")
+        this.al = geoJson(this.geojsonIntercommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.intercommuneClickHandler(_e) })
+        break;
+    }
+    this.map.addLayer(this.al)
   }
   public setActiveLayerDepartement() {
-    this.map.removeLayer(this.activeLayer)
-    this.activeLayer = this.geojsonDepartement
-    this.map.addLayer(this.activeLayer)
+    this.map.removeLayer(this.al)
+    this.al = this.geojsonDepartement
+    this.map.addLayer(this.al)
   }
-
+  // -----------------------basic styler-----------------------------
   public basicStyle(x: GeoJSON) {
     x.setStyle(this.defaultStyle)
     x.on('mouseover', (e) => { e.target.setStyle(this.hoverStyle) })
     x.on('mouseout', (e) => { e.target.setStyle(this.defaultStyle) })
     return x
   }
-
+  // -----------------------layer handler-----------------------------
   public irisLayerClickHandler(l: Layer) {
     l.on("click", (_e: LeafletMouseEvent) => {
       this.analyses.forEach((analyse) => { analyse.destroyView() })
@@ -314,7 +289,6 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       this.changeDetector.detectChanges()
     })
   }
-
   public departementClickHandler(_e: LeafletMouseEvent) {
     this.analyses.forEach((analyse) => { analyse.destroyView() })
     this.analyses = this.postresql.getAnalyseDepartement({ "vente": _e.sourceTarget.feature.properties.vente, "prix_median": _e.sourceTarget.feature.properties.prix_median }, _e.sourceTarget.feature.properties.nom)
@@ -331,5 +305,56 @@ export class OsmMapComponent implements OnInit, OnDestroy {
     this.analyses.forEach((analyse) => { analyse.destroyView() })
     this.analyses = this.postresql.getAnalyseParCommune({ "vente": _e.sourceTarget.feature.properties.vente, "prix_median": _e.sourceTarget.feature.properties.prix_median }, _e.sourceTarget.feature.properties.nom)
     this.open(this.analyses, _e.sourceTarget.feature.properties.stats, _e.sourceTarget.feature.properties.nom);
+  }
+
+  setChloroplethView(view: string) {
+    let tmp = this.activeLayer;
+    this.choroplethView = this.choroplethView ==  view ?  "None" :  view ;
+    this.removeCurrentLayer()
+    this.setActiveLayer(tmp);
+  }
+  setActiveLayer(layerName: string) {
+    switch(layerName) {
+      case "iris" :
+        if (this.activeLayer == "iris") {
+          this.activeLayer = "None"
+          this.map.removeLayer(this.al)
+        } else {
+          this.activeLayer = layerName
+          this.setActiveLayerIRIS()
+        }
+        break;
+      case "commune" :
+        if (this.activeLayer == "commune") {
+          this.activeLayer = "None"
+          this.map.removeLayer(this.al)
+        } else {
+          this.activeLayer = layerName
+          this.setActiveLayerCommune()
+        }
+        break;
+      case "intercommune" :
+        if (this.activeLayer == "intercommune") {
+          this.activeLayer = "None"
+          this.map.removeLayer(this.al)
+        } else {
+          this.activeLayer = layerName
+          this.setActiveLayerIntercommune()
+        }
+        break;
+      case "departement" :
+        if (this.activeLayer == "departement") {
+          this.activeLayer = "None"
+          this.map.removeLayer(this.al)
+        } else {
+          this.activeLayer = "departement"
+          this.setActiveLayerDepartement()
+        }
+        break;
+    }
+  }
+  removeCurrentLayer(){
+    this.activeLayer = "None";
+    this.map.removeLayer(this.al)
   }
 }
