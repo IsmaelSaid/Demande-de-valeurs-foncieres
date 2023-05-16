@@ -35,10 +35,10 @@
 				Cloropeth
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button class = "btn" [ngClass] = "{selected : choroplethView == 'nbVenteMaison'}" ngbDropdownItem (click) ="setChloroplethView('nbVenteMaison')">Nombre maison</button>
-				<button class = "btn" ngbDropdownItem (click) ="setChloroplethView('nbVenteAppartement')">Nombre appartement</button>
-				<button class = "btn" ngbDropdownItem (click) ="setChloroplethView('prixMaison')">Prix maison</button>
-				<button class = "btn" ngbDropdownItem (click) ="setChloroplethView('prixAppartement')">Prix Appartement</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'nombre_vente_maisons'}" ngbDropdownItem (click) ="setChloroplethView('nombre_vente_maisons')">Nombre maison</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'nombre_vente_appartements'}" ngbDropdownItem (click) ="setChloroplethView('nombre_vente_appartements')">Nombre appartement</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'prix_m2_median_maisons'}" ngbDropdownItem (click) ="setChloroplethView('prix_m2_median_maisons')">Prix maison</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'prix_m2_median_appartements'}" ngbDropdownItem (click) ="setChloroplethView('prix_m2_median_appartements')">Prix Appartement</button>
 			</div>
 		</div>
 	</div>

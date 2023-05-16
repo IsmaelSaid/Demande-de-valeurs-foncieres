@@ -4,7 +4,7 @@ import * as math from 'mathjs';
 
 
 export class Legend {
-    color: string[] = ['#fee5d9', '#fcae91', '#fb6a4a', '#cb181d']
+    color: string[] = ['#cb181d', '#fb6a4a', '#fcae91', '#fee5d9'].reverse()
     data : number [] = []
     threshold;
     quartil = [0.25, 0.5, 0.75]
@@ -18,9 +18,10 @@ export class Legend {
         fn = (feature: any) => {
             const getColor = (d: math.BigNumber) => {
                 return (
-                    d > this.threshold[3] ? this.color[3] :
-                        d > this.threshold[2] ? this.color[2] :
-                            d > this.threshold[1] ? this.color[1] : this.color[0])
+                    d > this.threshold[2] ? this.color[3] :
+                    d > this.threshold[1] ? this.color[2] :
+                    d > this.threshold[0] ? this.color[1] : 
+                    this.color[0])
             }
             return {
                 fillColor: getColor(feature.properties.stats[0][this.type]),

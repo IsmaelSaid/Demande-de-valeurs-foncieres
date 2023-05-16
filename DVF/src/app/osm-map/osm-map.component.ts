@@ -211,7 +211,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
       })
     }, (e: Error) => { console.error(e) });
   }
-  
+
   private initIRIS(http: HttpClientODS) {
     http.getIRIS().subscribe(response => {
       response.forEach((value) => {
@@ -229,39 +229,88 @@ export class OsmMapComponent implements OnInit, OnDestroy {
   // -----------------------Base layers-----------------------------
   public setActiveLayerIRIS() {
     this.map.removeLayer(this.al)
+    let l;
     switch (this.choroplethView) {
-      case "None" :
+      case "None":
         this.al = this.geojsonIRIS
         break;
-        case "nbVenteMaison" :
-        let l = new Legend("legend",this.geojsonIRIS,"nombre_vente_maisons")
+      case "nombre_vente_maisons":
+        l = new Legend("legend", this.geojsonIRIS, "nombre_vente_maisons")
         this.al = geoJson(this.geojsonIRIS.toGeoJSON(), { style: l.getStyler() })
         this.al.getLayers().forEach((layer) => { this.irisLayerClickHandler(layer) })
-      }
+        break;
+      case "nombre_vente_appartements":
+        l = new Legend("legend", this.geojsonIRIS, "nombre_vente_appartements")
+        this.al = geoJson(this.geojsonIRIS.toGeoJSON(), { style: l.getStyler() })
+        this.al.getLayers().forEach((layer) => { this.irisLayerClickHandler(layer) })
+        break;
+      case "prix_m2_median_maisons":
+        l = new Legend("legend", this.geojsonIRIS, "prix_m2_median_maisons")
+        this.al = geoJson(this.geojsonIRIS.toGeoJSON(), { style: l.getStyler() })
+        this.al.getLayers().forEach((layer) => { this.irisLayerClickHandler(layer) })
+        break;
+      case "prix_m2_median_appartements":
+        l = new Legend("legend", this.geojsonIRIS, "prix_m2_median_appartements")
+        this.al = geoJson(this.geojsonIRIS.toGeoJSON(), { style: l.getStyler() })
+        this.al.getLayers().forEach((layer) => { this.irisLayerClickHandler(layer) })
+        break;
+    }
     this.map.addLayer(this.al)
   }
   public setActiveLayerCommune() {
+    let l;
     this.map.removeLayer(this.al)
-  switch (this.choroplethView) {
-    case "None" :
-      this.al = this.geojsonCommune
-      break;
-    case "nbVenteMaison" :
-      let l = new Legend("legend",this.geojsonCommune,"nombre_vente_maisons")
-      this.al = geoJson(this.geojsonCommune.toGeoJSON(), { style: l.getStyler() })
-      this.al.on("click", (_e: LeafletMouseEvent) => { this.intercommuneClickHandler(_e) })
-      break;
+    switch (this.choroplethView) {
+      case "None":
+        this.al = this.geojsonCommune
+        break;
+      case "nombre_vente_maisons":
+        l = new Legend("legend", this.geojsonCommune, "nombre_vente_maisons")
+        this.al = geoJson(this.geojsonCommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.communeClickHandler(_e) })
+        break;
+      case "nombre_vente_appartements":
+        l = new Legend("legend", this.geojsonCommune, "nombre_vente_appartements")
+        this.al = geoJson(this.geojsonCommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.communeClickHandler(_e) })
+        break;
+      case "prix_m2_median_maisons":
+        l = new Legend("legend", this.geojsonCommune, "prix_m2_median_maisons")
+        this.al = geoJson(this.geojsonCommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.communeClickHandler(_e) })
+        break;
+      case "prix_m2_median_appartements":
+        l = new Legend("legend", this.geojsonCommune, "prix_m2_median_appartements")
+        this.al = geoJson(this.geojsonCommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.communeClickHandler(_e) })
+        break;
     }
     this.map.addLayer(this.al)
   }
   public setActiveLayerIntercommune() {
     this.map.removeLayer(this.al)
-    switch(this.choroplethView){
-      case "None" :
+    let l;
+    switch (this.choroplethView) {
+      case "None":
         this.al = this.geojsonIntercommune
         break;
-      case "nbVenteMaison" :
-        let l = new Legend("legend",this.geojsonIntercommune,"nombre_vente_maisons")
+      case "nombre_vente_maisons":
+        l = new Legend("legend", this.geojsonIntercommune, "nombre_vente_maisons")
+        this.al = geoJson(this.geojsonIntercommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.intercommuneClickHandler(_e) })
+        break;
+      case "nombre_vente_appartements":
+        l = new Legend("legend", this.geojsonIntercommune, "nombre_vente_appartements")
+        this.al = geoJson(this.geojsonIntercommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.intercommuneClickHandler(_e) })
+        break;
+      case "prix_m2_median_maisons":
+        l = new Legend("legend", this.geojsonIntercommune, "prix_m2_median_maisons")
+        this.al = geoJson(this.geojsonIntercommune.toGeoJSON(), { style: l.getStyler() })
+        this.al.on("click", (_e: LeafletMouseEvent) => { this.intercommuneClickHandler(_e) })
+        break;
+      case "prix_m2_median_appartements":
+        l = new Legend("legend", this.geojsonIntercommune, "prix_m2_median_appartements")
         this.al = geoJson(this.geojsonIntercommune.toGeoJSON(), { style: l.getStyler() })
         this.al.on("click", (_e: LeafletMouseEvent) => { this.intercommuneClickHandler(_e) })
         break;
@@ -309,13 +358,13 @@ export class OsmMapComponent implements OnInit, OnDestroy {
 
   setChloroplethView(view: string) {
     let tmp = this.activeLayer;
-    this.choroplethView = this.choroplethView ==  view ?  "None" :  view ;
+    this.choroplethView = this.choroplethView == view ? "None" : view;
     this.removeCurrentLayer()
     this.setActiveLayer(tmp);
   }
   setActiveLayer(layerName: string) {
-    switch(layerName) {
-      case "iris" :
+    switch (layerName) {
+      case "iris":
         if (this.activeLayer == "iris") {
           this.activeLayer = "None"
           this.map.removeLayer(this.al)
@@ -324,7 +373,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
           this.setActiveLayerIRIS()
         }
         break;
-      case "commune" :
+      case "commune":
         if (this.activeLayer == "commune") {
           this.activeLayer = "None"
           this.map.removeLayer(this.al)
@@ -333,7 +382,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
           this.setActiveLayerCommune()
         }
         break;
-      case "intercommune" :
+      case "intercommune":
         if (this.activeLayer == "intercommune") {
           this.activeLayer = "None"
           this.map.removeLayer(this.al)
@@ -342,7 +391,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
           this.setActiveLayerIntercommune()
         }
         break;
-      case "departement" :
+      case "departement":
         if (this.activeLayer == "departement") {
           this.activeLayer = "None"
           this.map.removeLayer(this.al)
@@ -353,7 +402,7 @@ export class OsmMapComponent implements OnInit, OnDestroy {
         break;
     }
   }
-  removeCurrentLayer(){
+  removeCurrentLayer() {
     this.activeLayer = "None";
     this.map.removeLayer(this.al)
   }
