@@ -98,11 +98,11 @@ export class PgsqlBack {
     ]
   }
 
-  public getanalyseIRIS(data: { "values": Object }, nom: string) {
+  public getanalyseIRIS(data: { "vente": object, "prix_median": object },nomIRIS : string) {
     return [new AnalyseBar(
       "an3",
-      data,
-      nom,
+      { "values": data.vente },
+      nomIRIS,
       "anneemut",
       "ordinal",
       "nb_vendu",

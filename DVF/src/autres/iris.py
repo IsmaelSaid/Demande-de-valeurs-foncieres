@@ -67,10 +67,9 @@ def geoshape_modifier(x):
 
     # x['properties'] = {"data" : df}
     x['properties'] = {
-        "data": data,
+        "vente": data,
         "stats": stats
     }
-    # print(x['properties']['stats'])
     return 1
 
 

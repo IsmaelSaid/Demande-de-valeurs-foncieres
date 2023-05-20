@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule,LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
@@ -10,11 +10,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CanvasModule } from './canvas/canvas.module';
 import { AnalyseMultipleComponent } from './analyse-multiple/analyse-multiple.component';
 import { AnalyseComponent } from './analyse/analyse.component';
+import { LegendComponent } from './legend/legend.component';
+import { registerLocaleData } from '@angular/common';
+import * as fr from '@angular/common/locales/fr'; 
 
 @NgModule({
   declarations: [
     AppComponent,
-    OsmMapComponent
+    OsmMapComponent,
+    LegendComponent
   ],
   imports: [
     BrowserModule,
@@ -24,7 +28,13 @@ import { AnalyseComponent } from './analyse/analyse.component';
     NgbModule,
     CanvasModule
   ],
-  providers: [],
+  providers: [{
+    provide : LOCALE_ID,useValue : 'fr-FR'
+  }],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor(){
+    registerLocaleData(fr.default);
+  }
+}

@@ -1,13 +1,4 @@
-<div class="card" style="width: 18rem;">
-	<div class="card-body">
-	  <h5 class="card-title">Légende</h5>
-	  <h6 class="card-subtitle mb-2 text-muted">sous titre</h6>
-	  <p class="card-text">
-		Affichez les légendes ici.
-	  </p>
-	</div>
-  </div>
-
+<app-legend [legend] = "legend" *ngIf="choroplethView != 'None'"></app-legend>
 <div class="row">
 	<div class="col">
 		<div ngbDropdown class="d-inline-block">
@@ -15,10 +6,10 @@
 				Echelles
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button [ngClass] = "{selected : activeLayer == 'departement'}" type = "button" ngbDropdownItem (click) ="setActiveLayer('departement')" class = "btn" >Département</button>
-				<button [ngClass] = "{selected : activeLayer == 'intercommune'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('intercommune')" class = "btn">Intercommune</button>
-				<button [ngClass] = "{selected : activeLayer == 'commune'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('commune')" class = "btn" >Commune</button>
-                <button [ngClass] = "{selected : activeLayer == 'iris'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('iris')"class = "btn" >IRIS</button>
+				<button [ngClass] = "{selected : activeLayerName == 'departement'}" type = "button" ngbDropdownItem (click) ="setActiveLayer('departement')" class = "btn" >Département</button>
+				<button [ngClass] = "{selected : activeLayerName == 'intercommune'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('intercommune')" class = "btn">Intercommune</button>
+				<button [ngClass] = "{selected : activeLayerName == 'commune'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('commune')" class = "btn" >Commune</button>
+                <button [ngClass] = "{selected : activeLayerName == 'iris'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('iris')"class = "btn" >IRIS</button>
 			</div>
 		</div>
         <div ngbDropdown class="d-inline-block">

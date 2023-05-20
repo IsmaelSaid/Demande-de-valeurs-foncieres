@@ -1,0 +1,18 @@
+<div class="card" style="width: 18rem;" *ngIf="legend">
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">{{legend.layerName | uppercase}} : {{legend.description}}</h6>
+        <p class="card-text">
+        <div class="legend">
+            <i style="background:#cb181d"> </i>>{{(legend.type == 'prix_m2_median_maisons') || (legend.type == 'prix_m2_median_appartements')?  (legend.threshold[2] | currency : 'EUR') : (legend.threshold[2] | number:'1.0-0')}} <br>
+            <i style="background:#fb6a4a"> </i> {{legend.isCurrency() ? (legend.threshold[1] | currency : 'EUR') : (legend.threshold[1] | number:'1.0-0')}} - {{legend.isCurrency()? (legend.threshold[2] | currency : 'EUR') : (legend.threshold[2] |number:'1.0-0')}}<br>
+            <i style="background:#fcae91"> </i> {{legend.isCurrency() ? (legend.threshold[0] | currency : 'EUR') : (legend.threshold[0] | number:'1.0-0')}} - {{legend.isCurrency()? (legend.threshold[1] | currency : 'EUR') : (legend.threshold[1] |number:'1.0-0')}}<br>
+            <i style="background:#fee5d9"> </i> {{legend.isCurrency() ? (legend.threshold[0] | currency : 'EUR') : (legend.threshold[0] | number:'1.0-0')}} < <br>
+                <!-- Cette ligne permet d'indiquer  -->
+                <span
+                    *ngIf="legend.type == 'prix_m2_median_maisons' || legend.type == 'prix_m2_median_appartements' "><i
+                        style="background:#ffffff"> </i> Pas assez de données.
+                    </span>
+
+        </div>
+    </div>
+</div>
