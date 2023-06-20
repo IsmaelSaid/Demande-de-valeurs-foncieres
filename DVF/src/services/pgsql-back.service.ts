@@ -50,16 +50,6 @@ export class PgsqlBack {
 
   public getAnalyseParCommune(data: { "vente": object, "prix_median": object }, nomCommune: string): Analyse[] {
     return [
-      new AnalyseLinePlot(
-        "an2",
-        nomCommune,
-        { "values": data.prix_median },
-        "anneemut",
-        "ordinal",
-        "prix_m2_median",
-        "quantitative",
-        "type",
-        "nominal"),
       new AnalyseBar(
         "an3",
         { "values": data.vente },

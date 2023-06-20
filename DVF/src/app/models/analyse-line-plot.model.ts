@@ -15,7 +15,6 @@ export class AnalyseLinePlot extends Analyse {
   createSpec(): TopLevelSpec {
     return {
       $schema: this.schema,
-      title:this.titre,
       data: this.data,
       "layer": [
         {

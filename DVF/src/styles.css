@@ -23,4 +23,9 @@ body{
     z-index: 1000;
     bottom: 0px;
     right: 0px;
+    
+  }
+
+  .leafletpopup{
+    pointer-events: none;
   }
