@@ -1,3 +1,6 @@
+<div  *ngIf="legend">
+	<app-legend [legend] = "legend"></app-legend>
+</div>
 <div class="row">
 	<div class="col">
 		<div ngbDropdown class="d-inline-block">
@@ -5,10 +8,10 @@
 				Echelles
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button ngbDropdownItem (click) ="setActiveLayerDepartement()">Département</button>
-				<button ngbDropdownItem (click) ="setActiveLayerIntercommune()">Intercommune</button>
-				<button ngbDropdownItem (click) ="setActiveLayerCommune()">Commune</button>
-                <button ngbDropdownItem (click) ="setActiveLayerIRIS()">IRIS</button>
+				<button [ngClass] = "{selected : activeLayerName == 'departement'}" type = "button" ngbDropdownItem (click) ="setActiveLayer('departement')" class = "btn" >Département</button>
+				<button [ngClass] = "{selected : activeLayerName == 'intercommune'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('intercommune')" class = "btn">EPCI</button>
+				<button [ngClass] = "{selected : activeLayerName == 'commune'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('commune')" class = "btn" >Commune</button>
+                <button [ngClass] = "{selected : activeLayerName == 'iris'}"type = "button" ngbDropdownItem (click) ="setActiveLayer('iris')"class = "btn" >IRIS</button>
 			</div>
 		</div>
         <div ngbDropdown class="d-inline-block">
@@ -16,17 +19,19 @@
 				Données
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button ngbDropdownItem>DVF</button>
-				<button ngbDropdownItem>Lieux touristiques</button>
+				<button ngbDropdownItem disabled >Transactions immobilières</button>
+				<button ngbDropdownItem disabled >Lieux touristiques</button>
 			</div>
 		</div>
         <div ngbDropdown class="d-inline-block">
 			<button type="button" class="btn btn-dark" id="dropdownBasic1" ngbDropdownToggle>
-				Cloropeth
+				Vues
 			</button>
 			<div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-				<button ngbDropdownItem (click) ="coroplethVenteMaison()">Les ventes de maisons</button>
-                <button ngbDropdownItem>Les ventes d'appartements</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'nombre_vente_maisons'}" ngbDropdownItem (click) ="setChloroplethView('nombre_vente_maisons')">Nombre de maisons vendues</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'nombre_vente_appartements'}" ngbDropdownItem (click) ="setChloroplethView('nombre_vente_appartements')">Nombre d'appartements vendus</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'prix_m2_median_maisons'}" ngbDropdownItem (click) ="setChloroplethView('prix_m2_median_maisons')">Prix des maisons</button>
+				<button class = "btn" [ngClass] = "{selected : choroplethView == 'prix_m2_median_appartements'}" ngbDropdownItem (click) ="setChloroplethView('prix_m2_median_appartements')">Prix des appartements</button>
 			</div>
 		</div>
 	</div>

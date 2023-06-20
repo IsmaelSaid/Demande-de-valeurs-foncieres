@@ -17,3 +17,24 @@
   .btn{
     border-radius: 0%;
   }
+  .btn:hover, .btn:active, .btn:focus {
+    color: #ffffff !important;
+    background-color:#4e8e33 !important;
+    border-color: #494F57 !important;
+  }
+  .selected{
+    color :rgb(255, 255, 255);
+    background-color:#4e8e33;
+  }
+
+
+i{
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+.leaflet-control-zoom{
+  display: none;
+}

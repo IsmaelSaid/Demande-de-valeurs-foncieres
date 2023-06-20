@@ -1,0 +1,19 @@
+<div class="card bg-custom text-white"  style="width: 18rem;">
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">{{legend.description}}</h6>
+        <p class="card-text">
+        <div class="legend text-white">
+            <i style="background:#961215"> </i> {{legend.isCurrency() ? (legend.threshold[3] | currency : 'EUR') : (legend.threshold[3] | number:'1.0-0')}} - {{legend.isCurrency()? (legend.getMax() | currency : 'EUR') : (legend.getMax() | number:'1.0-0')}} <br>
+            <i style="background:#cb181d"> </i> {{legend.isCurrency() ? (legend.threshold[2] | currency : 'EUR') : (legend.threshold[2] | number:'1.0-0')}} - {{legend.isCurrency()? (legend.threshold[3] | currency : 'EUR') : (legend.threshold[3] |number:'1.0-0')}}<br>
+            <i style="background:#fb6a4a"> </i> {{legend.isCurrency() ? (legend.threshold[1] | currency : 'EUR') : (legend.threshold[1] | number:'1.0-0')}} - {{legend.isCurrency()? (legend.threshold[2] | currency : 'EUR') : (legend.threshold[2] |number:'1.0-0')}}<br>
+            <i style="background:#fcae91"> </i> {{legend.isCurrency() ? (legend.threshold[0] | currency : 'EUR') : (legend.threshold[0] | number:'1.0-0')}} - {{legend.isCurrency()? (legend.threshold[1] | currency : 'EUR') : (legend.threshold[1] |number:'1.0-0')}}<br>
+            <i style="background:#fee5d9"> </i> {{legend.isCurrency() ? (legend.getMin() | currency : 'EUR') : (legend.getMin() | number:'1.0-0')}} - {{legend.isCurrency() ? (legend.threshold[0] | currency : 'EUR') : (legend.threshold[0] | number:'1.0-0')}}  <br>
+                <!-- Cette ligne permet d'indiquer que il existe des régions pour lesquels on ne peut calculer le prix du m2 -->
+            <span
+                *ngIf="legend.type == 'prix_m2_median_maisons' || legend.type == 'prix_m2_median_appartements' "><i
+                    style="background:#ffffff"> </i> Pas assez de données.
+            </span>
+
+        </div>
+    </div>
+</div>

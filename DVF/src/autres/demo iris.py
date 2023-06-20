@@ -62,9 +62,10 @@ query2 = '''
 
 def geoshape_modifier(x):
     params = [str(x['geometry']), str(x['geometry'])]
-    data = pd.read_sql(query, conn, params=params)
+    # data = pd.read_sql(query, conn, params=params)
     stats = pd.read_sql(query2, conn, params=params)
-
+    # print(stats)
+    print(x['geometry'])
     # x['properties'] = {"data" : df}
     x['properties'] = {
         "vente": data,
@@ -77,4 +78,4 @@ f = open("../assets/iris-millesime-la-reunion.json")
 iris_json = json.load(f)
 data = pd.DataFrame(iris_json)
 data["geo_shape"].apply(lambda x: geoshape_modifier(x))
-data.to_json("../assets/custom_IRIS.json",orient="records")
+# data.to_json("../assets/custom_IRIS.json",orient="records")
